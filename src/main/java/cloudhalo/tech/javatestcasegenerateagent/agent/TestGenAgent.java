@@ -1,6 +1,7 @@
 
 package cloudhalo.tech.javatestcasegenerateagent.agent;
 
+import cloudhalo.tech.javatestcasegenerateagent.advisor.ChatMemoryAdvisor;
 import cloudhalo.tech.javatestcasegenerateagent.advisor.MyLoggingAdvisor;
 import cloudhalo.tech.javatestcasegenerateagent.analyzer.CodeMetadata;
 import cloudhalo.tech.javatestcasegenerateagent.prompt.TestGenPromptBuilder;
@@ -10,7 +11,7 @@ import org.springaicommunity.agent.utils.CommandLineQuestionHandler;
 import org.springaicommunity.tool.search.ToolSearchToolCallAdvisor;
 import org.springaicommunity.tool.search.ToolSearcher;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.client.advisor.ToolCallAdvisor;
+import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -154,6 +155,7 @@ public class TestGenAgent {
 
     public TestGenAgent(
             ChatClient.Builder chatClientBuilder,
+            ChatMemory chatMemory,
             TestGenPromptBuilder promptBuilder,
             ToolSearcher toolSearcher,
             @Value("${spring.ai.openai.chat.options.model}") String agentModel,
@@ -162,7 +164,7 @@ public class TestGenAgent {
     ) {
         this.promptBuilder = promptBuilder;
         this.agentModel = agentModel;
-
+        final var summaryClient = chatClientBuilder.build();
         this.chatClient = chatClientBuilder
                 .defaultSystem(p -> p.text(systemPrompt)
                         .param(AgentEnvironment.ENVIRONMENT_INFO_KEY, AgentEnvironment.info())
@@ -192,7 +194,8 @@ public class TestGenAgent {
                                 .showUserText(true)
                                 .showAssistantText(true)
                                 .showAvailableTools(true)
-                                .build()
+                                .build(),
+                        new ChatMemoryAdvisor(chatMemory, summaryClient)
                 )
                 .build();
     }

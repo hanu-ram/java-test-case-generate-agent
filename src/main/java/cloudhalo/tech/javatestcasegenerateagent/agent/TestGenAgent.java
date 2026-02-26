@@ -10,6 +10,7 @@ import org.springaicommunity.agent.utils.CommandLineQuestionHandler;
 import org.springaicommunity.tool.search.ToolSearchToolCallAdvisor;
 import org.springaicommunity.tool.search.ToolSearcher;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.ToolCallAdvisor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -74,6 +75,8 @@ public class TestGenAgent {
              - `@RestController` → Use `@WebMvcTest` with `MockMvc`.
              - `@Repository` → Use `@DataJpaTest` (with an in-memory DB like H2 or Testcontainers).
              - `@Component` with `@Transactional` → Specifically test transaction rollback and commit behavior.
+             - `Do not write Junit or spring boot test for @Entity, Model, DTO, @Configuration classes unless they contain complex logic. Focus on testing business logic in @Service and @RestController layers.
+             - `If you encounter such classes simply skip to writing test and immediately return response in single like <result>SKIP</result><reason>one liner reason</reason>
              </spring_boot_guidelines>
             """,
             """
@@ -88,7 +91,7 @@ public class TestGenAgent {
             """
             <role>
             You are a build and test execution agent. Your only job is to run a specific
-            test class and report the result with precision.
+            test class and report the result with precision. Use tool search tool to search relevant tool and get the job done.
             </role>
             <instructions>
             You will receive:
@@ -107,8 +110,10 @@ public class TestGenAgent {
             3. Determine the result: PASSED or FAILED.
             
            <instruction>
-           DO NOT execute command like ./gradlew test --tests \\"org.springframework.samples.meow.owner.ServiceTest\\" --info"
-           execute like: ./gradlew test --tests "org.springframework.samples.petclinic.owner.OwnerControllerTest" --info" in single line
+           - `DO NOT execute command like ./gradlew test --tests \\"org.springframework.samples.meow.owner.ServiceTest\\" --info"`
+           - `execute like: cd /d "E:\\spring-petclinic" && gradlew test --tests "org.springframework.samples.petclinic.owner.OwnerTest" --info in single line`
+           - `If command is failing think & ask yourself why its failing and heal and correct yourself.
+           - `Return only if you get response of the test cases whether it failed or passed`
            </instruction>
             Output format (strict):
             <result>PASSED|FAILED</result>
@@ -159,11 +164,11 @@ public class TestGenAgent {
         this.agentModel = agentModel;
 
         this.chatClient = chatClientBuilder
-              /*  .defaultSystem(p -> p.text(systemPrompt)
+                .defaultSystem(p -> p.text(systemPrompt)
                         .param(AgentEnvironment.ENVIRONMENT_INFO_KEY, AgentEnvironment.info())
                         .param(AgentEnvironment.AGENT_MODEL_KEY, agentModel)
                         .param(AgentEnvironment.AGENT_MODEL_KNOWLEDGE_CUTOFF_KEY, knowledgeCutoff)
-                )*/
+                )
                 .defaultTools(
                         FileSystemTools.builder().build(),
 
@@ -183,9 +188,6 @@ public class TestGenAgent {
                                 .toolSearcher(toolSearcher)
                                 .maxResults(2)
                                 .build(),
-                       /* ToolCallAdvisor.builder()
-                                .conversationHistoryEnabled(false)
-                                .build(),*/
                         MyLoggingAdvisor.builder()
                                 .showUserText(true)
                                 .showAssistantText(true)
@@ -214,7 +216,7 @@ public class TestGenAgent {
      * @return generation result with outcome details
      */
 
-    /*public GenerationResult generateTests(CodeMetadata metadata, Path workingDir) {
+    public GenerationResult generateTests(CodeMetadata metadata, Path workingDir) {
         System.out.println(banner());
         System.out.printf("  📋 Generating tests for: %s (%s)%n",
                 metadata.className(), metadata.classType());
@@ -225,6 +227,11 @@ public class TestGenAgent {
 
         String agentResponse = chatClient.prompt()
                 .user(userPrompt)
+                .system(s -> s.params(Map.of(
+                        "workingDir", workingDir.toString(),
+                        "package",    metadata.packageName(),
+                        "className",  metadata.className()
+                )))
                 .toolContext(Map.of(
                         "workingDirectory", workingDir.toString(),
                         "targetClass", metadata.className(),
@@ -239,8 +246,8 @@ public class TestGenAgent {
                 && !agentResponse.toLowerCase().contains("could not");
 
         return new GenerationResult(success, metadata, agentResponse);
-    }*/
-    public GenerationResult generateTests(CodeMetadata metadata, Path workingDir) {
+    }
+   /* public GenerationResult generateTests(CodeMetadata metadata, Path workingDir) {
         System.out.println(banner());
         System.out.printf("  📋 Generating tests for: %s (%s)%n",
                 metadata.className(), metadata.classType());
@@ -254,6 +261,10 @@ public class TestGenAgent {
         String testCode = chatClient.prompt(
                 String.format("{%s}\n {%s}", DEFAULT_SYSTEM_PROMPTS[0], userPrompt)
         ).call().content();
+        assert testCode != null;
+        if (testCode.contains("SKIP")) {
+            return new GenerationResult(true, metadata, testCode);
+        }
         System.out.printf("\nSTEP 1 (output):\n %s%n", testCode);
 
         // ── Agent 2: Write file to disk ───────────────────────────────────────
@@ -348,7 +359,7 @@ public class TestGenAgent {
         assert runnerOutput != null;
         boolean success = runnerOutput.contains("<result>PASSED</result>");
         return new GenerationResult(success, metadata, runnerOutput);
-    }
+    }*/
 
 
     public String call() {

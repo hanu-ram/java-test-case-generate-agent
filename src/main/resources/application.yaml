@@ -36,6 +36,11 @@ spring:
       max-attempts: 3
       backoff:
         max-interval: 10s
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
 #  ai:
 #    google:
 #      genai:

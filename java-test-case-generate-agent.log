@@ -171,3 +171,7 @@
 1772002095306:generate test -f "E:\\\\spring-petclinic\\\\src\\\\main\\\\java\\\\org\\\\springframework\\\\samples\\\\petclinic\\\\owner\\\\OwnerController.java"
 1772018605840:generate test -f "E:\\\\shopizer\\\\sm-core\\\\src\\\\main\\\\java\\\\com\\\\salesmanager\\\\core\\\\business\\\\services\\\\content\\\\ContentServiceImpl.java"
 1772021258758:generate test -f "E:\\\\spring-petclinic\\\\src\\\\main\\\\java\\\\org\\\\springframework\\\\samples\\\\petclinic\\\\owner\\\\OwnerController.java"
+1772102313227:generate test -p "E:\\\\spring-petclinic\\\\src\\\\main\\\\java\\\\org\\\\springframework\\\\samples\\\\petclinic\\\\owner"
+1772103440556:help
+1772103574661:generate test -p "E:\\\\spring-petclinic\\\\src\\\\main\\\\java\\\\org\\\\springframework\\\\samples\\\\petclinic\\\\owner"
+1772103586857:generate test package -p "E:\\\\spring-petclinic\\\\src\\\\main\\\\java\\\\org\\\\springframework\\\\samples\\\\petclinic\\\\owner"

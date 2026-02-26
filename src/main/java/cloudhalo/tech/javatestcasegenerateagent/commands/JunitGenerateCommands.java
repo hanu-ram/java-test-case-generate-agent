@@ -146,6 +146,34 @@ public class JunitGenerateCommands {
             }
             writer.flush();
     }
+
+    @Command(
+            name = "generate test package",
+            description = "Generate JUnit 5 unit tests for a Java package level",
+            help = """
+                   Generate comprehensive JUnit 5 tests for a Java source file. package
+                   
+                   Usage:
+                     generate test package -p /path/to/service
+                     generate test --path /path/to/service
+                   """,
+            group = "generate tests"
+    )
+    public void generateTestForPackage(
+            @Option(
+                    longName = "path",
+                    shortName = 'p',
+                    required = true,
+                    description = "Absolute path to the Java package"
+            ) String packagePath,
+            CommandContext commandContext
+    ) throws IOException {
+        Files.list(Path.of(packagePath))
+                .forEach(path -> generateTest(path.toString(), commandContext));
+
+    }
+
+
     @Command(name = "say hello", description = "Say hello to AI")
     public void sayHello(CommandContext commandContext) {
         PrintWriter printWriter = commandContext.outputWriter();

@@ -247,6 +247,11 @@ public class TestGenAgent {
 
         return new GenerationResult(success, metadata, agentResponse);
     }
+
+    /**
+     * This method used multi agent step for single class
+     * @return
+     */
    /* public GenerationResult generateTests(CodeMetadata metadata, Path workingDir) {
         System.out.println(banner());
         System.out.printf("  📋 Generating tests for: %s (%s)%n",

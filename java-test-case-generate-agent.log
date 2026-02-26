@@ -1,0 +1,173 @@
+1771745950794:help
+1771745993877:generate-junit-test
+1771746015154:generate-junit-test --file meow.java
+1771746118306:help
+1771746126984:generate-junit-test --file hel
+1771746130882:exit
+1771766867135:help
+1771766872540:genj
+1771766966829:genj --file D:\\AI Agents\\java-test-case-generate-agent\\src\\main\\java\\cloudhalo\\tech\\javatestcasegenerateagent\\advisor\\PalindromeString.java
+1771766995364:stacktrace
+1771767609354:genj
+1771767615282:genj --file ToolCallAdvisor.builder()
+1771767617740:.conversationHistoryEnabled(false)
+1771767627997:.build()stacktrace
+1771767638455:stacktrace
+1771767781741:genj --file D:\\AI Agents\\java-test-case-generate-agent\\src\\main\\java\\cloudhalo\\tech\\javatestcasegenerateagent\\advisor\\PalindromeString.java
+1771767798178:stacktrace
+1771768048664:genj --file D:\\AI Agents\\java-test-case-generate-agent\\src\\main\\java\\cloudhalo\\tech\\javatestcasegenerateagent\\advisor\\PalindromeString.java
+1771768126580:stacktrace
+1771768347218:help
+1771768360574:ask --question my name is hanu
+1771768662711:ask --question what is your name
+1771768683805:can you create junit test cases just answer yes or no?
+1771768695384:ask --question can you create junit test cases just answer yes or no?
+1771768719786:create a junit test case for the following class here is the absolute path: D:\\AI Agents\\java-test-case-generate-agent\\src\\main\\java\\cloudhalo\\tech\\javatestcasegenerateagent\\advisor\\PalindromeString.java
+1771768744402:ask --question create a junit test case for the following class here is the absolute path: D:AI Agentsjava-test-case-generate-agentsrcmainjavacloudhalotechjavatestcasegenerateagentadvisorPalindromeString.java
+1771768779433:stacktrace
+1771769056899:help
+1771769060905:clear
+1771769192674:help
+1771769205708:genj generate test
+1771769239420:genj generate test --file D:\\AI Agents\\java-test-case-generate-agent\\src\\main\\java\\cloudhalo\\tech\\javatestcasegenerateagent\\advisor\\PalindromeString.java
+1771769390680:help
+1771769399412:genj generate test --file genj generate test --file D:\\AI Agents\\java-test-case-generate-agent\\src\\main\\java\\cloudhalo\\tech\\javatestcasegenerateagent\\advisor\\PalindromeString.java
+1771769477715:help
+1771769485494:genj generate test genj generate test --file D:\\AI Agents\\java-test-case-generate-agent\\src\\main\\java\\cloudhalo\\tech\\javatestcasegenerateagent\\advisor\\PalindromeString.java
+1771769527647:generate-test --file "genj generate test --file D:\\AI Agents\\java-test-case-generate-agent\\src\\main\\java\\cloudhalo\\tech\\javatestcasegenerateagent\\advisor\\PalindromeString.java"
+1771769543062:generate-junit --file "genj generate test --file D:\\AI Agents\\java-test-case-generate-agent\\src\\main\\java\\cloudhalo\\tech\\javatestcasegenerateagent\\advisor\\PalindromeString.java"
+1771769623519:generate-junit --file "genj generate test --file D:\\\\AI Agents\\\\java-test-case-generate-agent\\\\src\\\\main\\\\java\\\\cloudhalo\\\\tech\\\\javatestcasegenerateagent\\\\advisor\\\\PalindromeString.java"
+1771770575621:help
+1771770577801:ls
+1771770633213:stacktrace
+1771770737097:ls
+1771772379216:generate code
+1771773163695:clear
+1771773165575:cls
+1771773177064:generate code
+1771774815718:hi
+1771775036295:exit
+1771775169418:hi
+1771819519080:ls
+1771821038888:lp
+1771821844990:ls
+1771821847923:lp
+1771821863692:stacktrace
+1771821882589:lp
+1771824355139:D:\\AI Agents\\java-test-case-generate-agent
+1771824526548:lp
+1771824813536:genereate-code
+1771824817261:generate code
+1771825484417:generate test -f "D:\\AI Agents\\java-test-case-generate-agent\\src\\main\\java\\cloudhalo\\tech\\javatestcasegenerateagent\\advisor\\PalindromeString.java"
+1771827135849:help
+1771827148053:generate test
+1771827202921:generate test -f "D:\\AI Agents\\java-test-case-generate-agent\\src\\main\\java\\cloudhalo\\tech\\javatestcasegenerateagent\\advisor\\PalindromeString.java"
+1771827267396:lp
+1771832613186:generate code
+1771839526912:ls
+1771839529810:lp
+1771840119624:generate test -f "java/cloudhalo/tech/javatestcasegenerateagent/advisor/PalindromeString.java"
+1771841101177:generate test -f "PalindromeString.java"
+1771841507158:generate test -f "Palindrome.java"
+1771841914882:generate test -f "PalindromeString.java"
+1771841997419:generate test -f "Palindrome.java"
+1771842456736:generate test -f "PalindromeString.java"
+1771846818954:generate test -f "D:\\AI Agents\\java-test-case-generate-agent\\src\\main\\java\\cloudhalo\\tech\\javatestcasegenerateagent\\advisor\\PalindromeString.java"
+1771847124902:generate test -f "D:\\\\AI Agents\\\\java-test-case-generate-agent\\\\src\\main\\\\java\\\\cloudhalo\\\\tech\\\\javatestcasegenerateagent\\\\advisor\\\\PalindromeString.java"
+1771847287299:generate test -f "D:\\\\AI Agents\\\\java-test-case-generate-agent\\\\src\\main\\\\java\\\\cloudhalo\\\\tech\\\\javatestcasegenerateagent\\\\advisor\\\\PalindromeString.java"generate test -f "D:\\\\AI Agents\\\\java-test-case-generate-agent\\\\src\\main\\\\java\\\\cloudhalo\\\\tech\\\\javatestcasegenerateagent\\\\advisor\\\\PalindromeString.java"
+1771847315696:generate test -f "D:\\\\AI Agents\\\\java-test-case-generate-agent\\\\src\\main\\\\java\\\\cloudhalo\\\\tech\\\\javatestcasegenerateagent\\\\advisor\\\\PalindromeString.java"
+1771847391553:generate test -f "D:\\\\AI Agents\\\\java-test-case-generate-agent\\\\src\\\\main\\\\java\\\\cloudhalo\\\\tech\\\\javatestcasegenerateagent\\\\advisor\\\\PalindromeString.java"
+1771848984952:generate test -f "D:\\\\AI Agents\\\\java-test-case-generate-agent\\\\src\\\\main\\\\java\\\\cloudhalo\\\\tech\\\\javatestcasegenerateagent\\\\advisor\\\\PalindromeString.java"generate test -f "D:\\\\AI Agents\\\\java-test-case-generate-agent\\\\src\\\\main\\\\java\\\\cloudhalo\\\\tech\\\\javatestcasegenerateagent\\\\advisor\\\\PalindromeString.java"
+1771849005379:generate test -f "D:\\\\AI Agents\\\\java-test-case-generate-agent\\\\src\\\\main\\\\java\\\\cloudhalo\\\\tech\\\\javatestcasegenerateagent\\\\advisor\\\\PalindromeString.java"
+1771850867059:generate test -f "D:\\\\AI Agents\\\\java-test-case-generate-agent\\\\src\\\\main\\\\java\\\\cloudhalo\\\\tech\\\\javatestcasegenerateagent\\\\service\\\\PaymentService.java"
+1771855611672:say hello
+1771855747298:generate test -f "D:\\\\AI Agents\\\\java-test-case-generate-agent\\\\src\\\\main\\\\java\\\\cloudhalo\\\\tech\\\\javatestcasegenerateagent\\\\service\\\\PaymentService.java"
+1771901237194:say hello
+1771901361388:generate test -f "D:\\\\AI Agents\\\\java-test-case-generate-agent\\\\src\\\\main\\\\java\\\\cloudhalo\\\\tech\\\\javatestcasegenerateagent\\\\service\\\\PaymentService.java"
+1771901473921:generate test -f "D:\\\\AI Agents\\\\java-test-case-generate-agent\\\\src\\\\main\\\\java\\\\cloudhalo\\\\tech\\\\javatestcasegenerateagent\\\\advisor\\\\PalindromeString.java"
+1771902430986:say hello
+1771902476615:saysay hello
+1771902479610:say hello
+1771902765841:generate test -f "D:\\\\AI Agents\\\\java-test-case-generate-agent\\\\src\\\\main\\\\java\\\\cloudhalo\\\\tech\\\\javatestcasegenerateagent\\\\advisor\\\\PalindromeString.java"
+1771904645534:generate test -f "D:\\\\AI Agents\\\\java-test-case-generate-agent\\\\src\\\\main\\\\java\\\\cloudhalo\\\\tech\\\\javatestcasegenerateagent\\\\service\\\\PaymentService.java"
+1771906855089:say hello
+1771906893982:org.springframework.web.client.ResourceAccessException: I/O error on POST request for "https://api.openai.com/v1/chat/completions": null
+1771906893992:at org.springframework.web.client.DefaultRestClient$DefaultRequestBodyUriSpec.createResourceAccessException(DefaultRestClient.java:697) ~[spring-web-6.2.8.jar:6.2.8]
+1771906893999:at org.springframework.web.client.DefaultRestClient$DefaultRequestBodyUriSpec.exchangeInternal(DefaultRestClient.java:582) ~[spring-web-6.2.8.jar:6.2.8]
+1771906894006:at org.springframework.web.client.DefaultRestClient$DefaultRequestBodyUriSpec.exchange(DefaultRestClient.java:533) ~[spring-web-6.2.8.jar:6.2.8]
+1771906894010:at org.springframework.web.client.RestClient$RequestHeadersSpec.exchange(RestClient.java:680) ~[spring-web-6.2.8.jar:6.2.8]
+1771906894016:at org.springframework.web.client.DefaultRestClient$DefaultResponseSpec.executeAndExtract(DefaultRestClient.java:814) ~[spring-web-6.2.8.jar:6.2.8]
+1771906894022:at org.springframework.web.client.DefaultRestClient$DefaultResponseSpec.toEntityInternal(DefaultRestClient.java:774) ~[spring-web-6.2.8.jar:6.2.8]
+1771906894026:at org.springframework.web.client.DefaultRestClient$DefaultResponseSpec.toEntity(DefaultRestClient.java:763) ~[spring-web-6.2.8.jar:6.2.8]
+1771906894031:at org.springframework.ai.openai.api.OpenAiApi.chatCompletionEntity(OpenAiApi.java:214) ~[spring-ai-openai-1.1.2.jar:1.1.2]
+1771906894035:at org.springframework.ai.openai.OpenAiChatModel.lambda$internalCall$1(OpenAiChatModel.java:200) ~[spring-ai-openai-1.1.2.jar:1.1.2]
+1771906894039:at org.springframework.retry.support.RetryTemplate.doExecute(RetryTemplate.java:357) ~[spring-retry-2.0.12.jar:na]
+1771906894043:at org.springframework.retry.support.RetryTemplate.execute(RetryTemplate.java:230) ~[spring-retry-2.0.12.jar:na]
+1771906894048:at org.springframework.ai.openai.OpenAiChatModel.lambda$internalCall$3(OpenAiChatModel.java:200) ~[spring-ai-openai-1.1.2.jar:1.1.2]
+1771906894052:at io.micrometer.observation.Observation.observe(Observation.java:564) ~[micrometer-observation-1.15.1.jar:1.15.1]
+1771906894056:at org.springframework.ai.openai.OpenAiChatModel.internalCall(OpenAiChatModel.java:197) ~[spring-ai-openai-1.1.2.jar:1.1.2]
+1771906894062:at org.springframework.ai.openai.OpenAiChatModel.call(OpenAiChatModel.java:182) ~[spring-ai-openai-1.1.2.jar:1.1.2]
+1771906894068:at org.springframework.ai.chat.client.advisor.ChatModelCallAdvisor.adviseCall(ChatModelCallAdvisor.java:56) ~[spring-ai-client-chat-1.1.2.jar:1.1.2]
+1771906894076:at org.springframework.ai.chat.client.advisor.DefaultAroundAdvisorChain.lambda$nextCall$1(DefaultAroundAdvisorChain.java:114) ~[spring-ai-client-chat-1.1.2.jar:1.1.2]
+1771906894080:at io.micrometer.observation.Observation.observe(Observation.java:564) ~[micrometer-observation-1.15.1.jar:1.15.1]
+1771906894086:at org.springframework.ai.chat.client.advisor.DefaultAroundAdvisorChain.nextCall(DefaultAroundAdvisorChain.java:113) ~[spring-ai-client-chat-1.1.2.jar:1.1.2]
+1771906894090:at org.springframework.ai.chat.client.advisor.api.BaseAdvisor.adviseCall(BaseAdvisor.java:52) ~[spring-ai-client-chat-1.1.2.jar:1.1.2]
+1771906894095:at org.springframework.ai.chat.client.advisor.DefaultAroundAdvisorChain.lambda$nextCall$1(DefaultAroundAdvisorChain.java:114) ~[spring-ai-client-chat-1.1.2.jar:1.1.2]
+1771906894099:at io.micrometer.observation.Observation.observe(Observation.java:564) ~[micrometer-observation-1.15.1.jar:1.15.1]
+1771906894103:at org.springframework.ai.chat.client.advisor.DefaultAroundAdvisorChain.nextCall(DefaultAroundAdvisorChain.java:113) ~[spring-ai-client-chat-1.1.2.jar:1.1.2]
+1771906894107:at org.springframework.ai.chat.client.advisor.ToolCallAdvisor.adviseCall(ToolCallAdvisor.java:115) ~[spring-ai-client-chat-1.1.2.jar:1.1.2]
+1771906894112:at org.springframework.ai.chat.client.advisor.DefaultAroundAdvisorChain.lambda$nextCall$1(DefaultAroundAdvisorChain.java:114) ~[spring-ai-client-chat-1.1.2.jar:1.1.2]
+1771906894115:at io.micrometer.observation.Observation.observe(Observation.java:564) ~[micrometer-observation-1.15.1.jar:1.15.1]
+1771906894121:at org.springframework.ai.chat.client.advisor.DefaultAroundAdvisorChain.nextCall(DefaultAroundAdvisorChain.java:113) ~[spring-ai-client-chat-1.1.2.jar:1.1.2]
+1771906894126:at org.springframework.ai.chat.client.DefaultChatClient$DefaultCallResponseSpec.lambda$doGetObservableChatClientResponse$1(DefaultChatClient.java:539) ~[spring-ai-client-chat-1.1.2.jar:1.1.2]
+1771906894130:at io.micrometer.observation.Observation.observe(Observation.java:564) ~[micrometer-observation-1.15.1.jar:1.15.1]
+1771906894134:at org.springframework.ai.chat.client.DefaultChatClient$DefaultCallResponseSpec.doGetObservableChatClientResponse(DefaultChatClient.java:537) ~[spring-ai-client-chat-1.1.2.jar:1.1.2]
+1771906894138:at org.springframework.ai.chat.client.DefaultChatClient$DefaultCallResponseSpec.content(DefaultChatClient.java:517) ~[spring-ai-client-chat-1.1.2.jar:1.1.2]
+1771906894141:at cloudhalo.tech.javatestcasegenerateagent.agent.TestGenAgent.generateTests(TestGenAgent.java:129) ~[main/:na]
+1771906894145:at cloudhalo.tech.javatestcasegenerateagent.commands.JunitGenerateCommands.generateTest(JunitGenerateCommands.java:133) ~[main/:na]
+1771906894148:at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+1771906894150:at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+1771906894153:at org.springframework.util.MethodInvoker.invoke(MethodInvoker.java:283) ~[spring-core-6.2.8.jar:6.2.8]
+1771906894157:at org.springframework.shell.core.command.adapter.MethodInvokerCommandAdapter.doExecute(MethodInvokerCommandAdapter.java:104) ~[spring-shell-core-4.0.1.jar:4.0.1]
+1771906894161:at org.springframework.shell.core.command.AbstractCommand.execute(AbstractCommand.java:162) ~[spring-shell-core-4.0.1.jar:4.0.1]
+1771906894164:at org.springframework.shell.core.command.CommandExecutor.execute(CommandExecutor.java:71) ~[spring-shell-core-4.0.1.jar:4.0.1]
+1771906894168:at org.springframework.shell.core.InteractiveShellRunner.run(InteractiveShellRunner.java:108) ~[spring-shell-core-4.0.1.jar:4.0.1]
+1771906894176:at org.springframework.shell.core.autoconfigure.ShellRunnerAutoConfiguration.lambda$springShellApplicationRunner$0(ShellRunnerAutoConfiguration.java:39) ~[spring-shell-core-autoconfigure-4.0.1.jar:4.0.1]
+1771906894180:at org.springframework.boot.SpringApplication.lambda$callRunner$4(SpringApplication.java:784) ~[spring-boot-3.5.1.jar:3.5.1]
+1771906894183:at org.springframework.util.function.ThrowingConsumer$1.acceptWithException(ThrowingConsumer.java:82) ~[spring-core-6.2.8.jar:6.2.8]
+1771906894187:at org.springframework.util.function.ThrowingConsumer.accept(ThrowingConsumer.java:60) ~[spring-core-6.2.8.jar:6.2.8]
+1771906894190:at org.springframework.util.function.ThrowingConsumer$1.accept(ThrowingConsumer.java:86) ~[spring-core-6.2.8.jar:6.2.8]
+1771906894193:at org.springframework.boot.SpringApplication.callRunner(SpringApplication.java:796) ~[spring-boot-3.5.1.jar:3.5.1]
+1771906894196:at org.springframework.boot.SpringApplication.callRunner(SpringApplication.java:784) ~[spring-boot-3.5.1.jar:3.5.1]
+1771906894200:at org.springframework.boot.SpringApplication.lambda$callRunners$3(SpringApplication.java:772) ~[spring-boot-3.5.1.jar:3.5.1]
+1771906894203:at java.base/java.util.stream.ForEachOps$ForEachOp$OfRef.accept(ForEachOps.java:184) ~[na:na]
+1771906894205:at java.base/java.util.stream.SortedOps$SizedRefSortingSink.end(SortedOps.java:357) ~[na:na]
+1771906894208:at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:510) ~[na:na]
+1771906894210:at java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:499) ~[na:na]
+1771906894212:at java.base/java.util.stream.ForEachOps$ForEachOp.evaluateSequential(ForEachOps.java:151) ~[na:na]
+1771906894215:at java.base/java.util.stream.ForEachOps$ForEachOp$OfRef.evaluateSequential(ForEachOps.java:174) ~[na:na]
+1771906894217:at java.base/java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234) ~[na:na]
+1771906894220:at java.base/java.util.stream.ReferencePipeline.forEach(ReferencePipeline.java:596) ~[na:na]
+1771906894224:at org.springframework.boot.SpringApplication.callRunners(SpringApplication.java:772) ~[spring-boot-3.5.1.jar:3.5.1]
+1771906894228:at org.springframework.boot.SpringApplication.run(SpringApplication.java:325) ~[spring-boot-3.5.1.jar:3.5.1]
+1771906894230:at org.springframework.boot.SpringApplication.run(SpringApplication.java:1361) ~[spring-boot-3.5.1.jar:3.5.1]
+1771906894233:at org.springframework.boot.SpringApplication.run(SpringApplication.java:1350) ~[spring-boot-3.5.1.jar:3.5.1]
+1771906894237:at cloudhalo.tech.javatestcasegenerateagent.JavaTestCaseGenerateAgentApplication.main(JavaTestCaseGenerateAgentApplication.java:10) ~[main/:na]
+1771906894239:Caused by: java.io.IOException: null
+1771906894243:at org.springframework.http.client.ReactorClientHttpRequest.convertException(ReactorClientHttpRequest.java:173) ~[spring-web-6.2.8.jar:6.2.8]
+1771906894246:at org.springframework.http.client.ReactorClientHttpRequest.executeInternal(ReactorClientHttpRequest.java:138) ~[spring-web-6.2.8.jar:6.2.8]
+1771906894251:at org.springframework.http.client.AbstractStreamingClientHttpRequest.executeInternal(AbstractStreamingClientHttpRequest.java:71) ~[spring-web-6.2.8.jar:6.2.8]
+1771906894255:at org.springframework.http.client.AbstractClientHttpRequest.execute(AbstractClientHttpRequest.java:81) ~[spring-web-6.2.8.jar:6.2.8]
+1771906894260:at org.springframework.web.client.DefaultRestClient$DefaultRequestBodyUriSpec.exchangeInternal(DefaultRestClient.java:576) ~[spring-web-6.2.8.jar:6.2.8]
+1771906894262:... 59 common frames omitted
+1771906909536:Caused by: io.netty.handler.timeout.ReadTimeoutException: nullgenerate test -f "D:\\\\AI Agents\\\\java-test-case-generate-agent\\\\src\\\\main\\\\java\\\\cloudhalo\\\\tech\\\\javatestcasegenerateagent\\\\service\\\\PaymentService.java"
+1771906924623:generate test -f "D:\\\\AI Agents\\\\java-test-case-generate-agent\\\\src\\\\main\\\\java\\\\cloudhalo\\\\tech\\\\javatestcasegenerateagent\\\\service\\\\PaymentService.java"
+1771908412670:
+1771910444975:generate tech -f "E:\\\\shopizer\\\\sm-core\\\\src\\\\main\\\\java\\\\com\\\\salesmanager\\\\core\\\\business\\\\services\\\\content\\\\ContentServiceImpl.java"
+1771910474612:generate test -f "E:\\\\shopizer\\\\sm-core\\\\src\\\\main\\\\java\\\\com\\\\salesmanager\\\\core\\\\business\\\\services\\\\content\\\\ContentServiceImpl.java"
+1771941281170:generate test -f "E:\\\\spring-petclinic\\\\src\\\\main\\\\java\\\\org\\\\springframework\\\\samples\\\\petclinic\\\\owner\\\\OwnerController.java"
+1772001944592:say hell
+1772001947318:say hello
+1772002095306:generate test -f "E:\\\\spring-petclinic\\\\src\\\\main\\\\java\\\\org\\\\springframework\\\\samples\\\\petclinic\\\\owner\\\\OwnerController.java"
+1772018605840:generate test -f "E:\\\\shopizer\\\\sm-core\\\\src\\\\main\\\\java\\\\com\\\\salesmanager\\\\core\\\\business\\\\services\\\\content\\\\ContentServiceImpl.java"
+1772021258758:generate test -f "E:\\\\spring-petclinic\\\\src\\\\main\\\\java\\\\org\\\\springframework\\\\samples\\\\petclinic\\\\owner\\\\OwnerController.java"

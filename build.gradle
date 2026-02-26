@@ -1,0 +1,77 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '4.0.3'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id 'jacoco'
+//    id 'org.graalvm.buildtools.native' version '0.10.6'
+}
+
+group = 'cloudhalo.tech'
+version = '0.0.1-SNAPSHOT'
+description = 'java-test-case-generate-agent'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    set('springAiVersion', "2.0.0-M2")
+    set('springShellVersion', "4.0.1")
+    set('springSearchToolVersion', "2.0.1")
+//    set('springShellVersion', "3.4.1")
+}
+
+dependencies {
+    implementation('org.springframework.boot:spring-boot-starter-webflux')
+//    implementation 'org.springframework.ai:spring-ai-starter-model-google-genai'
+    implementation("com.github.javaparser:javaparser-core:3.28.0")
+//    implementation 'org.springframework.ai:spring-ai-starter-model-google-genai-embedding'
+    implementation("org.springaicommunity:spring-ai-agent-utils:0.5.0")
+    implementation 'org.springframework.ai:spring-ai-starter-model-openai'
+    implementation 'org.springframework.shell:spring-shell-starter'
+    implementation "org.springaicommunity:tool-search-tool:${springSearchToolVersion}"
+
+    // Choose a search strategy
+    implementation "org.springaicommunity:tool-searcher-lucene:${springSearchToolVersion}"
+    implementation 'org.springframework.shell:spring-shell-starter-jansi'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+//    implementation 'org.springframework.ai:spring-ai-starter-model-vertex-ai-gemini'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'io.projectreactor:reactor-test'
+    testImplementation 'org.springframework.shell:spring-shell-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.ai:spring-ai-bom:${springAiVersion}"
+        mavenBom "org.springframework.shell:spring-shell-dependencies:${springShellVersion}"
+    }
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+jar {
+    manifest {
+        attributes 'Main-Class': 'cloudhalo.tech.javatestcasegenerateagent.JavaTestCaseGenerateAgentApplication'
+    }
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}

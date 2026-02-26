@@ -1,0 +1,63 @@
+spring:
+  application:
+    name: java-test-case-generate-agent
+  main:
+    banner-mode: off
+  shell:
+    interactive:
+      enabled: true
+#    theme:
+#      name: agent
+    command:
+      script:
+        enabled: true
+#  ai:
+#    vertex:
+#      ai:
+#        gemini:
+#          project-id: tidy-vent-394615
+#          chat:
+#            options:
+#              model:
+#              temperature: 0.7
+#          location: us-central1
+#          credentials-uri: file:C:\Users\rhanu\AppData\Roaming\gcloud\application_default_credentials.json
+  ai:
+    openai:
+      chat:
+        options:
+          model: gpt-5.1-2025-11-13
+#          reasoning-effort: low only for o1 models
+          internal-tool-execution-enabled: true
+          parallel-tool-calls: true
+          verbosity: medium
+      api-key: ${OPENAI_API_KEY}
+    retry:
+      max-attempts: 3
+      backoff:
+        max-interval: 10s
+#  ai:
+#    google:
+#      genai:
+#        api-key: ${GOOGLE_API_KEY}
+#        chat:
+#          options:
+#            model: gemini-2.5-flash
+#            temperature: 1.0
+#            thinking-level: high
+#            google-search-retrieval: true
+#            internal-tool-execution-enabled: true
+#        location: global
+#        project-id: tidy-vent-394615
+#  ai:
+#    openai:
+#      base-url: https://generativelanguage.googleapis.com
+#      chat:
+#        options:
+#          model: gemini-3.1-pro-preview
+#        completions-path: /v1beta/openai/chat/completions
+#      api-key: ${GOOGLE_API_KEY}
+
+#logging:
+#  level:
+#    root: debug

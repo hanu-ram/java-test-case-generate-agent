@@ -26,7 +26,7 @@ import java.util.Optional;
  * Analyzes a Java source file using JavaParser and produces a structured
  * {@link CodeMetadata} record. This structured data — NOT raw source code —
  * is what gets sent to the LLM for test generation.
- *
+ * <p>
  * Key benefit: reduces LLM input tokens by ~70% and eliminates noise
  * (comments, formatting, boilerplate) that distracts the model.
  */
@@ -41,7 +41,7 @@ public class JavaCodeAnalyzer {
      *
      * @param filePath absolute path to the .java source file
      * @return fully populated CodeMetadata record
-     * @throws IOException if file cannot be read
+     * @throws IOException              if file cannot be read
      * @throws IllegalArgumentException if file is not valid Java
      */
     public CodeMetadata analyze(String filePath) throws IOException {
@@ -135,54 +135,99 @@ public class JavaCodeAnalyzer {
                 testSlice,
                 testClassName,
                 testPackageName,
-                testPath
-        );
+                testPath);
     }
 
     /**
      * Detect the Spring/Java class type based on annotations and inheritance.
      * Drives which sub-agent prompt and test slice to use.
+     * Supports both modern Spring Boot and legacy J2EE class types.
      */
     private String detectClassType(List<String> annotations, String interfaces, String superclass) {
         for (String ann : annotations) {
-            if (ann.contains("RestController")) return "REST_CONTROLLER";
-            if (ann.contains("Controller"))     return "CONTROLLER";
-            if (ann.contains("Repository"))     return "REPOSITORY";
-            if (ann.contains("Service"))        return "SERVICE";
-            if (ann.contains("Component"))      return "COMPONENT";
-            if (ann.contains("Configuration"))  return "CONFIGURATION";
+            // Spring MVC / Web
+            if (ann.contains("RestController"))
+                return "REST_CONTROLLER";
+            if (ann.contains("ControllerAdvice"))
+                return "CONTROLLER_ADVICE";
+            if (ann.contains("Controller"))
+                return "CONTROLLER";
+            // Spring Data / Persistence
+            if (ann.contains("Repository"))
+                return "REPOSITORY";
+            // Spring Beans
+            if (ann.contains("Service"))
+                return "SERVICE";
+            if (ann.contains("Component"))
+                return "COMPONENT";
+            if (ann.contains("Configuration"))
+                return "CONFIGURATION";
+            // J2EE / Jakarta EE
+            if (ann.contains("Stateless") || ann.contains("Stateful") || ann.contains("Singleton"))
+                return "EJB";
+            if (ann.contains("WebServlet"))
+                return "SERVLET";
+            // JAX-RS (both javax and jakarta)
+            if (ann.contains("Path") && !ann.contains("Mapping"))
+                return "JAX_RS";
         }
         // Infer from inheritance
-        if (superclass != null && superclass.contains("Repository")) return "REPOSITORY";
-        if (interfaces.contains("UserDetailsService"))               return "SERVICE";
+        if (superclass != null && superclass.equals("HttpServlet"))
+            return "SERVLET";
+        if (superclass != null && superclass.contains("Repository"))
+            return "REPOSITORY";
+        if (interfaces.contains("UserDetailsService"))
+            return "SERVICE";
+        if (interfaces.contains("Servlet"))
+            return "SERVLET";
         return "UTILITY";
     }
 
     /**
      * Extract fields that are dependency-injected — these become @Mock in tests.
+     * Excludes @Value-annotated fields (config strings) which are NOT mockable.
+     * Excludes J2EE @EJB injection (added as EJB_INJECT type for context).
      */
     private List<CodeMetadata.FieldDependency> extractInjectedFields(ClassOrInterfaceDeclaration cls) {
         List<CodeMetadata.FieldDependency> fields = new ArrayList<>();
 
         for (FieldDeclaration field : cls.getFields()) {
-            boolean isInjected = field.getAnnotations().stream()
+            List<String> fieldAnnotationNames = field.getAnnotations().stream()
                     .map(AnnotationExpr::getNameAsString)
-                    .anyMatch(a -> a.equals("Autowired") || a.equals("Inject"));
+                    .toList();
 
-            // Also capture final fields — likely constructor-injected
+            // Skip @Value fields — these are config properties, not mockable dependencies
+            if (fieldAnnotationNames.contains("Value"))
+                continue;
+            // Skip @Slf4j / @Log fields injected by Lombok
+            if (fieldAnnotationNames.stream().anyMatch(a -> a.contains("Log") || a.contains("Slf4j")))
+                continue;
+
+            boolean isInjected = fieldAnnotationNames.stream()
+                    .anyMatch(a -> a.equals("Autowired") || a.equals("Inject") || a.equals("EJB")
+                            || a.equals("Resource"));
+
+            // Also capture final non-static fields with object types — likely
+            // constructor-injected
             boolean isFinalField = field.isFinal() && !field.isStatic();
-            boolean isNotPrimitive = field.getVariables().stream()
-                    .anyMatch(v -> !v.getTypeAsString().equals("String")
-                            && Character.isUpperCase(v.getTypeAsString().charAt(0)));
+            boolean isObjectType = field.getVariables().stream()
+                    .anyMatch(v -> {
+                        String type = v.getTypeAsString();
+                        // Skip primitives, String, Logger, and common config types
+                        return !type.equals("String") && !type.equals("int")
+                                && !type.equals("long")
+                                && !type.equals("boolean")
+                                && !type.equalsIgnoreCase("logger")
+                                && Character.isUpperCase(type.charAt(0));
+                    });
 
-            if (isInjected || isFinalField && isNotPrimitive) {
+            if (isInjected || (isFinalField && isObjectType)) {
                 field.getVariables().forEach(var -> {
                     String injectionType = isInjected ? "AUTOWIRED" : "CONSTRUCTOR";
                     fields.add(new CodeMetadata.FieldDependency(
                             var.getNameAsString(),
                             var.getTypeAsString(),
-                            injectionType
-                    ));
+                            injectionType));
                 });
             }
         }
@@ -200,12 +245,13 @@ public class JavaCodeAnalyzer {
         for (MethodDeclaration method : cls.getMethods()) {
 
             boolean matchesVisibility = switch (visibility) {
-                case "public"  -> method.isPublic();
+                case "public" -> method.isPublic();
                 case "package" -> !method.isPublic() && !method.isPrivate() && !method.isProtected();
-                default        -> false;
+                default -> false;
             };
 
-            if (!matchesVisibility) continue;
+            if (!matchesVisibility)
+                continue;
 
             // Skip constructors and boilerplate
             String name = method.getNameAsString();
@@ -237,15 +283,26 @@ public class JavaCodeAnalyzer {
                             || body.contains(".stream()") || body.contains(".forEach"))
                     .orElse(false);
 
-            // Detect external calls — drives which things to mock
+            // Detect external calls — checks against injected field names for accuracy
+            List<String> injectedNames = extractInjectedFields(cls).stream()
+                    .map(CodeMetadata.FieldDependency::fieldName)
+                    .toList();
             boolean callsExternal = method.getBody()
                     .map(BlockStmt::toString)
                     .map(body -> {
-                        // calls on injected fields (heuristic: camelCase variable followed by .)
-                        return body.contains("Repository.") || body.contains("Service.")
-                                || body.contains("Client.") || body.contains("Template.")
-                                || body.contains("save(") || body.contains("findBy")
-                                || body.contains("restTemplate") || body.contains("webClient");
+                        // Primary: match against actual injected field names
+                        boolean callsField = injectedNames.stream()
+                                .anyMatch(fieldName -> body.contains(fieldName + "."));
+                        // Fallback heuristic for common Spring/J2EE patterns
+                        boolean heuristicMatch = body.contains("save(")
+                                || body.contains("findBy")
+                                || body.contains("restTemplate")
+                                || body.contains("webClient")
+                                || body.contains("entityManager")
+                                || body.contains("em.")
+                                || body.contains(".persist(")
+                                || body.contains(".merge(");
+                        return callsField || heuristicMatch;
                     })
                     .orElse(false);
 
@@ -258,29 +315,34 @@ public class JavaCodeAnalyzer {
                     hasConditional,
                     hasLoops,
                     callsExternal,
-                    visibility
-            ));
+                    visibility));
         }
         return methods;
     }
 
     /**
-     * Suggest the right Spring Boot test slice — prevents over-using @SpringBootTest.
+     * Suggest the right Spring Boot / J2EE test slice.
+     * Prevents over-using @SpringBootTest and guides the LLM to the correct
+     * approach.
      */
     private String suggestTestSlice(String classType, List<String> annotations) {
         return switch (classType) {
             case "REST_CONTROLLER", "CONTROLLER" -> "@WebMvcTest";
-            case "REPOSITORY"                    -> "@DataJpaTest";
-            case "SERVICE", "COMPONENT"          -> "Mockito (no Spring context)";
-            case "CONFIGURATION"                 -> "@SpringBootTest";
-            default                              -> "JUnit 5 pure unit test";
+            case "CONTROLLER_ADVICE" -> "@WebMvcTest with standaloneSetup";
+            case "REPOSITORY" -> "@DataJpaTest";
+            case "SERVICE", "COMPONENT" -> "Mockito (no Spring context)";
+            case "CONFIGURATION" -> "@SpringBootTest (skip if no testable logic)";
+            case "EJB" -> "Mockito (no Spring context) — EJB unit test";
+            case "SERVLET" -> "MockHttpServletRequest/MockHttpServletResponse (Spring MockMvc or plain Mockito)";
+            case "JAX_RS" -> "JAX-RS unit test — call method directly, mock injected fields";
+            default -> "JUnit 5 pure unit test";
         };
     }
 
     /**
      * Map source path to test path.
      * e.g. src/main/java/com/acme/UserService.java
-     *   → src/test/java/com/acme/UserServiceTest.java
+     * → src/test/java/com/acme/UserServiceTest.java
      */
     private String buildTestPath(String sourcePath, String packageName, String testClassName) {
         String normalized = sourcePath.replace("\\", "/");

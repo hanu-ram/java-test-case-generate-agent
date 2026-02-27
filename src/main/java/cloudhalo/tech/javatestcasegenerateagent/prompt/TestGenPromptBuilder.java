@@ -9,15 +9,17 @@ import java.util.stream.Collectors;
 
 /**
  * Builds the structured USER prompt sent to Claude for test generation.
- *
- * The SYSTEM prompt (QA persona, rules) is loaded from TESTGEN_SYSTEM_PROMPT.st.
- * This class builds the USER prompt — the structured, JavaParser-derived context
+ * <p>
+ * The SYSTEM prompt (QA persona, rules) is loaded from
+ * TESTGEN_SYSTEM_PROMPT.st.
+ * This class builds the USER prompt — the structured, JavaParser-derived
+ * context
  * that tells the LLM exactly WHAT to test.
- *
+ * <p>
  * Design principle:
- *   Send STRUCTURED METADATA (from JavaParser) not raw source.
- *   The LLM gets exactly the signal it needs — nothing more.
- *   Raw source is attached separately only for implementation reference.
+ * Send STRUCTURED METADATA (from JavaParser) not raw source.
+ * The LLM gets exactly the signal it needs — nothing more.
+ * Raw source is attached separately only for implementation reference.
  */
 @Component
 public class TestGenPromptBuilder {
@@ -26,81 +28,132 @@ public class TestGenPromptBuilder {
      * Build the user prompt from analyzed code metadata.
      * This is a rich, structured prompt — not just "generate tests for X".
      */
-        public String buildUserPrompt(CodeMetadata metadata) {
-            return """
-                    ## TASK: Generate JUnit 5 Unit Tests
-                    
-                    ### Target Class Analysis
-                    ```
-                    Class     : %s
-                    Package   : %s
-                    Type      : %s
-                    Test Slice: %s
-                    Test Class: %s
-                    Test Path : %s
-                    ```
-                    
-                    ### Class Annotations (Spring Context)
-                    %s
-                    
-                    %s
-                    
-                    ### Public Methods to Test
-                    %s
-                    
-                    ### Dependencies to Mock
-                    %s
-                    
-                    ### Identified Test Scenarios
-                    %s
-                    
-                    ### Source Code (for implementation reference)
-                    ```java
-                    %s
-                    ```
-                    
-                    ---
-                    
-                    ## YOUR STEPS — Follow in exact order
-    
-                    ### Step 1 — Read dependencies (if needed)
-                    If any method parameter or return type is unfamiliar, use FileSystemTools
-                    to read the source files for those types before generating tests.
-                    Use GlobTool to find them: search for `**/%s*.java`, `**/dto/**`, `**/model/**`.
-                    
-                    ### Step 2 — Generate the test class
-                    Write a complete, compilable JUnit 5 test class for `%s`.
-                    
-                    Requirements:
-                    - Package declaration : `package %s;`
-                    - Class name          : `%s`
-                    - Cover ALL scenarios listed in "Identified Test Scenarios" above
-                    - Use AssertJ for ALL assertions (never bare JUnit assertEquals)
-                    - Use @ExtendWith(MockitoExtension.class) with @Mock / @InjectMocks
-                    - Follow BDD naming   : should_[result]_when_[condition]()
-                    - Include ALL necessary imports
-                    """.formatted(
-                    // ── Header block (%s args) ────────────────────────────────
-                    metadata.className(),          // class name in header
-                    metadata.packageName(),        // package in header
-                    metadata.classType(),          // type in header
-                    metadata.suggestedTestSlice(), // slice in header
-                    metadata.testClassName(),      // test class name in header
-                    metadata.suggestedTestPath(),  // path in header
-                    formatAnnotations(metadata.classAnnotations()),
-                    formatInterfaces(metadata),
-                    formatMethods(metadata.publicMethods()),
-                    formatDependencies(metadata.injectedFields()),
-                    buildTestScenarios(metadata),
-                    metadata.rawSource(),
-                    // ── Step 1 — GlobTool search hint ─────────────────────────
-                    metadata.className(),          // %s prefix for finding related files
-                    // ── Step 2 — generate requirements ───────────────────────
-                    metadata.className(),          // class name in requirements
-                    metadata.testPackageName(),    // package declaration
-                    metadata.testClassName()     // class name declaration
-            );
-        }
+    public String buildUserPrompt(CodeMetadata metadata) {
+        return buildUserPrompt(metadata, "gradle", null);
+    }
+
+    /**
+     * Build an enriched user prompt including build-tool-aware run instructions.
+     *
+     * @param metadata   structured class analysis from JavaParser
+     * @param buildTool  "gradle" or "maven"
+     * @param workingDir project root (for run command context)
+     */
+    public String buildUserPrompt(CodeMetadata metadata, String buildTool, String workingDir) {
+        String runCommand = buildRunCommand(metadata, buildTool, workingDir);
+
+        return """
+                ## TASK: Generate JUnit 5 Unit Tests
+                
+                ### Target Class Analysis
+                ```
+                Class     : %s
+                Package   : %s
+                Type      : %s
+                Test Slice: %s
+                Test Class: %s
+                Test Path : %s
+                Build Tool: %s
+                ```
+                
+                ### Class Annotations (Spring Context)
+                %s
+                
+                %s
+                
+                ### Public Methods to Test
+                %s
+                
+                ### Dependencies to Mock
+                %s
+                
+                ### Identified Test Scenarios
+                %s
+                
+                ### Source Code (for implementation reference)
+                ```java
+                %s
+                ```
+                
+                ---
+                
+                ## YOUR STEPS — Follow in exact order
+                
+                ### Step 1 — Read dependencies (if needed)
+                If any method parameter or return type is unfamiliar, use FileSystemTools
+                to read the source files for those types before generating tests.
+                Use GlobTool to find them: search for `**/%s*.java`, `**/dto/**`, `**/model/**`.
+                
+                ### Step 2 — Generate the test class
+                Write a complete, compilable JUnit 5 test class for `%s`.
+                
+                Requirements:
+                - Package declaration : `package %s;`
+                - Class name          : `%s`
+                - Cover ALL scenarios listed in "Identified Test Scenarios" above
+                - Use AssertJ for ALL assertions (never bare JUnit assertEquals)
+                - Use @ExtendWith(MockitoExtension.class) with @Mock / @InjectMocks
+                - Follow BDD naming   : should_[result]_when_[condition]()
+                - Include ALL necessary imports
+                
+                ### Step 3 — Write the test file to disk
+                Use FileSystemTools to write the complete test class to:
+                `%s`
+                Create parent directories if they don't exist.
+                
+                ### Step 4 — Compile and run the test (self-healing loop)
+                Run the test using ShellTools with this exact command:
+                `%s`
+                
+                - If compilation FAILS → read the error, fix the test source, overwrite the file (Step 3), re-run.
+                - If test execution FAILS → read assertion failure, fix the logic, overwrite the file, re-run.
+                - Maximum 3 fix attempts. Stop and report if still failing after 3 retries.
+                
+                Report final result in this format:
+                <result>PASSED|FAILED</result>
+                <summary>N tests passed / N failed</summary>
+                <errors>paste relevant error lines if FAILED, empty if PASSED</errors>
+                """.formatted(
+                // ── Header block ────────────────────────────────────────
+                metadata.className(),
+                metadata.packageName(),
+                metadata.classType(),
+                metadata.suggestedTestSlice(),
+                metadata.testClassName(),
+                metadata.suggestedTestPath(),
+                buildTool,
+                formatAnnotations(metadata.classAnnotations()),
+                formatInterfaces(metadata),
+                formatMethods(metadata.publicMethods()),
+                formatDependencies(metadata.injectedFields()),
+                buildTestScenarios(metadata),
+                metadata.rawSource(),
+                // ── Step 1 ───────────────────────────────────────────────
+                metadata.className(),
+                // ── Step 2 ───────────────────────────────────────────────
+                metadata.className(),
+                metadata.testPackageName(),
+                metadata.testClassName(),
+                // ── Step 3 ───────────────────────────────────────────────
+                metadata.suggestedTestPath(),
+                // ── Step 4 ───────────────────────────────────────────────
+                runCommand);
+    }
+
+    /**
+     * Build the build-tool-aware single-line run command for the test.
+     * Windows-compatible: uses 'cd /d' and direct executable names.
+     */
+    private String buildRunCommand(CodeMetadata metadata, String buildTool, String workingDir) {
+        String dir = workingDir != null ? workingDir : "<project-root>";
+        String fqcn = metadata.testPackageName() + "." + metadata.testClassName();
+        return switch (buildTool.toLowerCase()) {
+            case "maven" -> "cd /d \"%s\" && mvn test -Dtest=%s --no-transfer-progress".formatted(
+                    dir, metadata.testClassName());
+            default -> // gradle
+                    "cd /d \"%s\" && gradlew test --tests \"%s\" --info".formatted(dir, fqcn);
+        };
+    }
 
     // ─────────────────────────────────────────────────────────────────────────
     // SCENARIO BUILDER — This is key: we pre-compute scenarios from metadata
@@ -120,9 +173,7 @@ public class TestGenPromptBuilder {
 
             // Happy path — always
             sb.append("- ✅ Happy path: valid input → expected ").append(
-                    method.isVoid() ? "behavior verified via mock interaction" :
-                            "return value asserted"
-            ).append("\n");
+                    method.isVoid() ? "behavior verified via mock interaction" : "return value asserted").append("\n");
 
             // Null checks — for non-primitive parameters
             if (!method.parameters().isEmpty()) {
@@ -174,7 +225,8 @@ public class TestGenPromptBuilder {
     // ─────────────────────────────────────────────────────────────────────────
 
     private String formatAnnotations(List<String> annotations) {
-        if (annotations.isEmpty()) return "  (none)";
+        if (annotations.isEmpty())
+            return "  (none)";
         return annotations.stream()
                 .map(a -> "  " + a)
                 .collect(Collectors.joining("\n"));
@@ -195,35 +247,41 @@ public class TestGenPromptBuilder {
     }
 
     private String formatMethods(List<CodeMetadata.MethodInfo> methods) {
-        if (methods.isEmpty()) return "  (no public methods found)";
+        if (methods.isEmpty())
+            return "  (no public methods found)";
 
         return methods.stream()
                 .map(m -> """
-                         Method : %s(%s) → %s
-                         Throws : %s
-                         Flags  : %s
-                         """.formatted(
+                        Method : %s(%s) → %s
+                        Throws : %s
+                        Flags  : %s
+                        """.formatted(
                         m.methodName(),
                         String.join(", ", m.parameters()),
                         m.returnType(),
                         m.thrownExceptions().isEmpty() ? "none" : String.join(", ", m.thrownExceptions()),
-                        buildMethodFlags(m)
-                ))
+                        buildMethodFlags(m)))
                 .collect(Collectors.joining("\n  ---\n  "));
     }
 
     private String buildMethodFlags(CodeMetadata.MethodInfo m) {
         List<String> flags = new ArrayList<>();
-        if (m.isVoid())                    flags.add("void");
-        if (m.hasConditionalLogic())       flags.add("has-branching");
-        if (m.hasLoops())                  flags.add("has-loops");
-        if (m.callsExternalDependency())   flags.add("calls-dependency");
-        if (!m.thrownExceptions().isEmpty()) flags.add("throws");
+        if (m.isVoid())
+            flags.add("void");
+        if (m.hasConditionalLogic())
+            flags.add("has-branching");
+        if (m.hasLoops())
+            flags.add("has-loops");
+        if (m.callsExternalDependency())
+            flags.add("calls-dependency");
+        if (!m.thrownExceptions().isEmpty())
+            flags.add("throws");
         return flags.isEmpty() ? "none" : String.join(", ", flags);
     }
 
     private String formatDependencies(List<CodeMetadata.FieldDependency> deps) {
-        if (deps.isEmpty()) return "  (none — no dependencies to mock)";
+        if (deps.isEmpty())
+            return "  (none — no dependencies to mock)";
 
         return deps.stream()
                 .map(d -> "  @Mock %s %s  [%s]".formatted(d.fieldType(), d.fieldName(), d.injectionType()))

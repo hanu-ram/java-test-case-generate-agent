@@ -1,4 +1,3 @@
-
 package cloudhalo.tech.javatestcasegenerateagent.agent;
 
 import cloudhalo.tech.javatestcasegenerateagent.advisor.MyLoggingAdvisor;
@@ -16,33 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.nio.file.Path;
 import java.util.Map;
-
-/**
- * TestGenAgent — the core LLM chain for JUnit test generation.
- * <p>
- * Flow:
- * [JavaParser → CodeMetadata] → [PromptBuilder → user prompt] → [ChatClient + Tools] → Claude writes file
- * <p>
- * Tools available to Claude during generation:
- * <p>
- * FileSystemTools  — Claude reads dependency source files AND writes the final test file.
- * Claude knows the exact target path from metadata.suggestedTestPath()
- * in the prompt, so it calls FileSystemTools.writeFile() directly.
- * No separate Java TestFileWriter needed.
- * <p>
- * GrepTool         — Claude searches for usages, related constants, base class methods.
- * <p>
- * GlobTool         — Claude finds related source files (DTOs, entities, exceptions)
- * referenced in method signatures that it needs to understand fully.
- * <p>
- * ShellTools       — Claude runs the test after writing it:
- * mvn test -Dtest=UserServiceTest -pl .
- * ./gradlew test --tests "com.acme.UserServiceTest"
- * If it fails, Claude reads the error, fixes the test, re-runs.
- * This is the self-healing loop — no human needed.
- * <p>
- * AskUserQuestionTool — Claude asks for clarification if a type cannot be resolved.
- */
 
 @Service
 public class TestGenAgent {
@@ -70,12 +42,9 @@ public class TestGenAgent {
                 )
                 .defaultTools(
                         FileSystemTools.builder().build(),
-
                         GrepTool.builder().build(),
                         GlobTool.builder().build(),
-
                         ShellTools.builder().build(),
-
                         AskUserQuestionTool.builder()
                                 .questionHandler(new CommandLineQuestionHandler())
                                 .answersValidation(false)
@@ -83,7 +52,7 @@ public class TestGenAgent {
                 )
                 .defaultAdvisors(
                         ToolSearchToolCallAdvisor.builder()
-                                .conversationHistoryEnabled(false)
+                                .conversationHistoryEnabled(true)
                                 .toolSearcher(toolSearcher)
                                 .maxResults(2)
                                 .build(),
@@ -96,48 +65,17 @@ public class TestGenAgent {
                 .build();
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // PRIMARY ENTRY POINT
-    // ─────────────────────────────────────────────────────────────────────────
-
-    /**
-     * Generate JUnit tests for an already-analyzed class.
-     * <p>
-     * The enriched user prompt (from TestGenPromptBuilder) instructs the LLM to:
-     * 1. Read dependency source files if needed (FileSystemTools + GlobTool)
-     * 2. Generate the complete test class
-     * 3. Write to metadata.suggestedTestPath() (FileSystemTools)
-     * 4. Run the test (ShellTools) and self-heal if it fails (max 3 retries)
-     * 5. Report structured result: {@code <result>PASSED|FAILED</result>}
-     *
-     * @param metadata   structured class analysis from JavaParser
-     * @param workingDir project root — passed to ShellTools so mvn/gradle runs
-     *                   correctly
-     * @return generation result with outcome details
-     */
-
     public GenerationResult generateTests(CodeMetadata metadata, Path workingDir) {
         return generateTests(metadata, workingDir, detectBuildTool(workingDir));
     }
 
-    /**
-     * Generate JUnit tests with explicit build tool specification.
-     *
-     * @param metadata   structured class analysis from JavaParser
-     * @param workingDir project root
-     * @param buildTool  "gradle" or "maven"
-     * @return generation result with outcome details
-     */
     public GenerationResult generateTests(CodeMetadata metadata, Path workingDir, String buildTool) {
         System.out.println(banner());
-        System.out.printf("  📋 Generating tests for: %s (%s)%n",
-                metadata.className(), metadata.classType());
+        System.out.printf("  📋 Generating tests for: %s (%s)%n", metadata.className(), metadata.classType());
         System.out.printf("  🎯 Test slice : %s%n", metadata.suggestedTestSlice());
         System.out.printf("  📁 Output path: %s%n", metadata.suggestedTestPath());
         System.out.printf("  🔧 Build tool : %s%n%n", buildTool);
 
-        // Build the enriched user prompt with Steps 1-4 (incl. write file + run +
-        // self-heal)
         String userPrompt = promptBuilder.buildUserPrompt(metadata, buildTool, workingDir.toString());
 
         String agentResponse = chatClient.prompt()
@@ -147,6 +85,9 @@ public class TestGenAgent {
                         "package", metadata.packageName(),
                         "className", metadata.className())))
                 .toolContext(Map.of(
+                        // FIX 3: "workingDirectory" is what ShellTools reads as its CWD.
+                        // Without this the shell runs from wherever the JVM started,
+                        // gradlew/mvnw won't be found, and every command silently fails.
                         "workingDirectory", workingDir.toString(),
                         "targetClass", metadata.className(),
                         "testOutputPath", metadata.suggestedTestPath()))
@@ -155,33 +96,26 @@ public class TestGenAgent {
 
         assert agentResponse != null;
 
-        // ── Structured result parsing ──────────────────────────────────────
-        // Check for SKIP responses (e.g. Entity, DTO classes)
-        if (agentResponse.contains("<result>SKIP</result>")) {
+        // SKIP response — entity/dto/pojo with no logic
+        if (agentResponse.contains("<r>SKIP</r>")) {
             String reason = extractTag(agentResponse, "reason");
             System.out.println("  ⏭️  SKIPPED: " + reason);
-            return new GenerationResult(true, metadata, agentResponse, 0,
-                    null, "SKIP: " + reason);
+            return new GenerationResult(true, metadata, agentResponse, 0, null, "SKIP: " + reason);
         }
 
-        // Parse structured tags from the agent response
-        boolean passed = agentResponse.contains("<result>PASSED</result>");
+        boolean passed = agentResponse.contains("<r>PASSED</r>");
         String summary = extractTag(agentResponse, "summary");
-        String errors = extractTag(agentResponse, "errors");
+        String errors  = extractTag(agentResponse, "errors");
 
+        // FIX 4: removed the heuristic fallback that was calling things "passed"
+        // when they weren't. If the model didn't output <r>PASSED</r> it failed.
+        // The heuristic was masking real failures and returning success=true incorrectly.
         if (passed) {
             System.out.println("  ✅ " + summary);
         } else {
-            // Fallback: if no structured tags, use heuristic
-            if (!agentResponse.contains("<result>")) {
-                // Old-style unstructured response — use heuristic
-                passed = !agentResponse.toLowerCase().contains("compilation failed")
-                        && !agentResponse.toLowerCase().contains("build failed")
-                        && !agentResponse.toLowerCase().contains("test failed");
-                errors = passed ? "" : "Unstructured response — couldn't determine result tags";
-            }
-            if (!passed) {
-                System.out.println("  ❌ " + (summary.isEmpty() ? "Test generation failed" : summary));
+            System.out.println("  ❌ " + (summary.isEmpty() ? "Test generation failed" : summary));
+            if (!errors.isEmpty()) {
+                System.out.println("  📋 " + errors);
             }
         }
 
@@ -189,30 +123,19 @@ public class TestGenAgent {
                 metadata.suggestedTestPath(), errors.isEmpty() ? null : errors);
     }
 
-    /**
-     * Detect build tool from the project root directory.
-     */
     private String detectBuildTool(Path workingDir) {
-        if (java.nio.file.Files.exists(workingDir.resolve("build.gradle")))
-            return "gradle";
-        if (java.nio.file.Files.exists(workingDir.resolve("pom.xml")))
-            return "maven";
-        if (java.nio.file.Files.exists(workingDir.resolve("build.gradle.kts")))
-            return "gradle";
-        return "gradle"; // default
+        if (java.nio.file.Files.exists(workingDir.resolve("build.gradle")))     return "gradle";
+        if (java.nio.file.Files.exists(workingDir.resolve("pom.xml")))          return "maven";
+        if (java.nio.file.Files.exists(workingDir.resolve("build.gradle.kts"))) return "gradle";
+        return "gradle";
     }
 
-    /**
-     * Extract content between XML-like tags from agent response.
-     * e.g. extractTag(response, "summary") → content inside <summary>...</summary>
-     */
     private String extractTag(String text, String tag) {
-        String open = "<" + tag + ">";
+        String open  = "<" + tag + ">";
         String close = "</" + tag + ">";
         int start = text.indexOf(open);
-        int end = text.indexOf(close);
-        if (start == -1 || end == -1 || end <= start)
-            return "";
+        int end   = text.indexOf(close);
+        if (start == -1 || end == -1 || end <= start) return "";
         return text.substring(start + open.length(), end).trim();
     }
 
@@ -224,16 +147,6 @@ public class TestGenAgent {
                 .content();
     }
 
-    /**
-     * Result of test generation.
-     *
-     * @param success       true if all tests passed or class was skipped
-     * @param metadata      the analyzed class metadata
-     * @param agentResponse raw LLM response
-     * @param fixAttempts   number of fix attempts made (0 if passed first time)
-     * @param testFilePath  path to the generated test file (null if skipped)
-     * @param errorSummary  error details if failed (null if success)
-     */
     public record GenerationResult(
             boolean success,
             CodeMetadata metadata,

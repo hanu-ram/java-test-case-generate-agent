@@ -11,27 +11,27 @@ spring:
     command:
       script:
         enabled: true
-  ai:
-    vertex:
-      ai:
-        gemini:
-          project-id: tidy-vent-394615
-          chat:
-            options:
-              model: gemini-2.5-flash
-              temperature: 0.7
-          location: us-central1
-          credentials-uri: file:C:\Users\rhanu\AppData\Roaming\gcloud\application_default_credentials.json
 #  ai:
-#    openai:
-#      chat:
-#        options:
-#          model: gpt-4o
-##          reasoning-effort: low only for o1 models
-#          internal-tool-execution-enabled: true
-#          parallel-tool-calls: true
-#          verbosity: medium
-#      api-key: ${OPENAI_API_KEY}
+#    vertex:
+#      ai:
+#        gemini:
+#          project-id: tidy-vent-394615
+#          chat:
+#            options:
+#              model: gemini-2.5-flash
+#              temperature: 0.7
+#          location: us-central1
+#          credentials-uri: file:C:\Users\rhanu\AppData\Roaming\gcloud\application_default_credentials.json
+  ai:
+    openai:
+      chat:
+        options:
+          model: gpt-4o
+#          reasoning-effort: low only for o1 models
+          internal-tool-execution-enabled: true
+          parallel-tool-calls: true
+          verbosity: medium
+      api-key: ${OPENAI_API_KEY}
     retry:
       max-attempts: 3
       backoff:

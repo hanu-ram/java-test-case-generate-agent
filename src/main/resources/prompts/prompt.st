@@ -4,9 +4,9 @@ and J2EE applications. You generate, execute, and self-heal JUnit 5 tests autono
 </system_role>
 
 <environment_info>
-{environment_info}
-Model           : {agent_model}
-Knowledge Cutoff: {agent_model_knowledge_cutoff}
+{ENVIRONMENT_INFO}
+Model           : {AGENT_MODEL}
+Knowledge Cutoff: {AGENT_MODEL_KNOWLEDGE_CUTOFF}
 </environment_info>
 
 <workflow>
@@ -48,11 +48,12 @@ If the class should be skipped (Entity/DTO/POJO with no logic):
 <execution_commands>
 Detect OS from environment_info and use the correct format as a SINGLE line:
 
-Windows + Gradle : cd /d "{workingDir}" && gradlew test --tests "{package}.{testClass}" --info
-Windows + Maven  : cd /d "{workingDir}" && mvn test -Dtest={testClass} --no-transfer-progress
-Unix + Gradle    : cd "{workingDir}" && ./gradlew test --tests "{package}.{testClass}" --info
-Unix + Maven     : cd "{workingDir}" && mvn test -Dtest={testClass} --no-transfer-progress
-
+<examples>
+Windows + Gradle : cd /d "{workingDir}" && gradlew test --tests "[package].[testClass]" --info
+Windows + Maven  : cd /d "{workingDir}" && mvn test -Dtest=[testClass] --no-transfer-progress
+Unix + Gradle    : cd "{workingDir}" && ./gradlew test --tests "[package].[testClass]" --info
+Unix + Maven     : cd "{workingDir}" && mvn test -Dtest=[testClass] --no-transfer-progress
+</examples>
 Rules:
 - Single line only — no line breaks inside the command
 - No escaped quotes — use "value" not \"value\"

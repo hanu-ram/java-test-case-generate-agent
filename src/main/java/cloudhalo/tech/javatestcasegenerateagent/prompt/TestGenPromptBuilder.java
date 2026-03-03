@@ -107,12 +107,26 @@ public class TestGenPromptBuilder {
                 
                 - If compilation FAILS → read the error, fix the test source, overwrite the file (Step 3), re-run.
                 - If test execution FAILS → read assertion failure, fix the logic, overwrite the file, re-run.
-                - Maximum 3 fix attempts. Stop and report if still failing after 3 retries.
+                There is no attempt limit. Keep repairing until you see BUILD SUCCESSFUL.
                 
-                Report final result in this format:
-                <result>PASSED|FAILED</result>
-                <summary>N tests passed / N failed</summary>
-                <errors>paste relevant error lines if FAILED, empty if PASSED</errors>
+                SHELL OUTPUT RULE: Gradle/Maven produces thousands of lines. Extract ONLY:
+                - Lines starting with 'error:' (compilation failures with file/line numbers)
+                - Lines with 'FAILED', 'expected:', 'but was:', or the exception root cause
+                - Ignore all [INFO], [DEBUG], Downloading lines entirely
+                
+                REPAIR LOOP - repeat until BUILD SUCCESSFUL:
+                1. Run the command
+                2. Extract only the relevant error lines (ignore noise)
+                3. Identify the EXACT root cause (wrong import? wrong type? wrong mock setup?)
+                4. If unfamiliar type in error: use GlobTool to find it, read with FileSystemTools
+                5. Fix ONLY the broken part - do not regenerate the whole test class
+                6. Overwrite the file using FileSystemTools
+                7. Go back to step 1
+                
+                When the test passes, output ONLY:
+                <r>PASSED</r>
+                <summary>N tests passed</summary>
+                <errors></errors>
                 """.formatted(
                 // ── Header block ────────────────────────────────────────
                 metadata.className(),

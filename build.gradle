@@ -30,7 +30,6 @@ ext {
     set('springAiVersion', "2.0.0-M2")
     set('springShellVersion', "4.0.1")
     set('springSearchToolVersion', "2.0.1")
-//    set('springShellVersion', "3.4.1")
 }
 
 dependencies {
@@ -39,7 +38,7 @@ dependencies {
     implementation("com.github.javaparser:javaparser-core:3.28.0")
 //    implementation 'org.springframework.ai:spring-ai-starter-model-google-genai-embedding'
     implementation("org.springaicommunity:spring-ai-agent-utils:0.5.0")
-//    implementation 'org.springframework.ai:spring-ai-starter-model-openai'
+    implementation 'org.springframework.ai:spring-ai-starter-model-openai'
     implementation 'org.springframework.shell:spring-shell-starter'
     implementation "org.springaicommunity:tool-search-tool:${springSearchToolVersion}"
 
@@ -47,7 +46,7 @@ dependencies {
     implementation "org.springaicommunity:tool-searcher-lucene:${springSearchToolVersion}"
     implementation 'org.springframework.shell:spring-shell-starter-jansi'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    implementation 'org.springframework.ai:spring-ai-starter-model-vertex-ai-gemini'
+//    implementation 'org.springframework.ai:spring-ai-starter-model-vertex-ai-gemini'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'

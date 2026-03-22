@@ -18,20 +18,26 @@ spring:
 #          project-id: tidy-vent-394615
 #          chat:
 #            options:
-#              model: gemini-2.5-flash
+#              model: gemini-2.5-pro
 #              temperature: 0.7
 #          location: us-central1
 #          credentials-uri: file:C:\Users\rhanu\AppData\Roaming\gcloud\application_default_credentials.json
   ai:
+    vectorstore:
+      pinecone:
+        api-key: pcsk_4x6gPG_3uMiBWpeT2CXy1sHRnh5TLxTuC355EkrH2T6jNpWiiQh1FjURdy2vBSfMPTyArA
+        index-name: spring-ai-index
+        namespace: testagent
     openai:
       chat:
         options:
-          model: gpt-4o
+          model: minimaxai/minimax-m2.5
 #          reasoning-effort: low only for o1 models
           internal-tool-execution-enabled: true
-          parallel-tool-calls: true
+          parallel-tool-calls: false
           verbosity: medium
-      api-key: ${OPENAI_API_KEY}
+      api-key: ${NVIDIA_API_KEY}
+      base-url: https://integrate.api.nvidia.com
     retry:
       max-attempts: 3
       backoff:
@@ -65,4 +71,6 @@ management:
 
 #logging:
 #  level:
-#    root: debug
+#    root: info
+server:
+  port: 8081

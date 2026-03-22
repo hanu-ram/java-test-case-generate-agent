@@ -39,13 +39,17 @@ dependencies {
 //    implementation 'org.springframework.ai:spring-ai-starter-model-google-genai-embedding'
     implementation("org.springaicommunity:spring-ai-agent-utils:0.5.0")
     implementation 'org.springframework.ai:spring-ai-starter-model-openai'
+    implementation 'org.springframework.ai:spring-ai-rag'
     implementation 'org.springframework.shell:spring-shell-starter'
+    implementation 'org.springframework.ai:spring-ai-advisors-vector-store'
     implementation "org.springaicommunity:tool-search-tool:${springSearchToolVersion}"
 
     // Choose a search strategy
     implementation "org.springaicommunity:tool-searcher-lucene:${springSearchToolVersion}"
     implementation 'org.springframework.shell:spring-shell-starter-jansi'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.ai:spring-ai-starter-vector-store-pinecone'
+    implementation 'org.springframework.ai:spring-ai-tika-document-reader'
 //    implementation 'org.springframework.ai:spring-ai-starter-model-vertex-ai-gemini'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'

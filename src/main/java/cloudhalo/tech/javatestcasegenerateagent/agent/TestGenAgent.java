@@ -4,11 +4,14 @@ import cloudhalo.tech.javatestcasegenerateagent.advisor.MyLoggingAdvisor;
 import cloudhalo.tech.javatestcasegenerateagent.analyzer.CodeMetadata;
 import cloudhalo.tech.javatestcasegenerateagent.prompt.TestGenPromptBuilder;
 import org.springaicommunity.agent.tools.*;
+import org.springaicommunity.agent.tools.task.TaskTool;
+import org.springaicommunity.agent.tools.task.claude.ClaudeSubagentType;
 import org.springaicommunity.agent.utils.AgentEnvironment;
 import org.springaicommunity.agent.utils.CommandLineQuestionHandler;
 import org.springaicommunity.tool.search.ToolSearchToolCallAdvisor;
 import org.springaicommunity.tool.search.ToolSearcher;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.ToolCallAdvisor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -52,9 +55,9 @@ public class TestGenAgent {
                 )
                 .defaultAdvisors(
                         ToolSearchToolCallAdvisor.builder()
-                                .conversationHistoryEnabled(true)
+                                .conversationHistoryEnabled(false)
                                 .toolSearcher(toolSearcher)
-                                .maxResults(2)
+                                .maxResults(3)
                                 .build(),
                         MyLoggingAdvisor.builder()
                                 .showUserText(true)
@@ -105,7 +108,7 @@ public class TestGenAgent {
 
         boolean passed = agentResponse.contains("<r>PASSED</r>");
         String summary = extractTag(agentResponse, "summary");
-        String errors  = extractTag(agentResponse, "errors");
+        String errors = extractTag(agentResponse, "errors");
 
         // FIX 4: removed the heuristic fallback that was calling things "passed"
         // when they weren't. If the model didn't output <r>PASSED</r> it failed.
@@ -124,17 +127,17 @@ public class TestGenAgent {
     }
 
     private String detectBuildTool(Path workingDir) {
-        if (java.nio.file.Files.exists(workingDir.resolve("build.gradle")))     return "gradle";
-        if (java.nio.file.Files.exists(workingDir.resolve("pom.xml")))          return "maven";
+        if (java.nio.file.Files.exists(workingDir.resolve("build.gradle"))) return "gradle";
+        if (java.nio.file.Files.exists(workingDir.resolve("pom.xml"))) return "maven";
         if (java.nio.file.Files.exists(workingDir.resolve("build.gradle.kts"))) return "gradle";
         return "gradle";
     }
 
     private String extractTag(String text, String tag) {
-        String open  = "<" + tag + ">";
+        String open = "<" + tag + ">";
         String close = "</" + tag + ">";
         int start = text.indexOf(open);
-        int end   = text.indexOf(close);
+        int end = text.indexOf(close);
         if (start == -1 || end == -1 || end <= start) return "";
         return text.substring(start + open.length(), end).trim();
     }

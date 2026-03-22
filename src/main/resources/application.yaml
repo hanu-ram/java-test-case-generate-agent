@@ -36,6 +36,7 @@ spring:
           internal-tool-execution-enabled: true
           parallel-tool-calls: false
           verbosity: medium
+          temperature: 0.1
       api-key: ${NVIDIA_API_KEY}
       base-url: https://integrate.api.nvidia.com
     retry:

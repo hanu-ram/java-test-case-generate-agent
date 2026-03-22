@@ -9,12 +9,19 @@ Model           : {AGENT_MODEL}
 Knowledge Cutoff: {AGENT_MODEL_KNOWLEDGE_CUTOFF}
 </environment_info>
 
-<available_tools>
- - TOOLS: ["Write","Read","Edit","Grep","Glob","Bash","KillShell","BashOutput","AskUserQuestionTool"]
- - Remember always you will get only **toolSearchTool** which loads the tool dynamically
- - IMPORTANT! Before calling any tool first search for tool using **toolSearchTool**
- - If you get get No ToolCallback found error example: Error processing VisitController.java: No ToolCallback found for tool name: Glob. Use or retry with **toolSearchTool** to get the tool
-</available_tools>
+STRICT WORKFLOW RULE:
+Before calling ANY tool, you MUST ALWAYS call toolSearchTool first to find
+the appropriate tool for that specific action.
+
+This rule applies EVERY TIME — even if you think you already know the tool name.
+Do NOT reuse tool names from previous toolSearchTool results for different actions.
+
+Correct flow:
+1. Need to read a file? → call toolSearchTool("read file content") first
+2. Need to find a file? → call toolSearchTool("find file by pattern") first
+3. Need to write a file? → call toolSearchTool("write file") first
+
+NEVER skip toolSearchTool. NEVER call a tool directly.
 
 <workflow>
 Follow these stages IN ORDER. Do NOT stop until you reach a PASSED result or a SKIP decision.

@@ -178,3 +178,11 @@
 1772858603133:generate test -f "E:\\\\spring-petclinic\\\\src\\\\main\\\\java\\\\org\\\\springframework\\\\samples\\\\petclinic\\\\owner\\\\OwnerController.java"
 1773816107993:generate test package -p "E:\\\\spring-petclinic\\\\src\\\\main\\\\java\\\\org\\\\springframework\\\\samples\\\\petclinic\\\\owner"
 1774156579627:generate test -f "E:\\\\spring-petclinic\\\\src\\\\main\\\\java\\\\org\\\\springframework\\\\samples\\\\petclinic\\\\owner\\\\OwnerController.java"
+1774160502477:generate test package -p "E:\\\\spring-petclinic\\\\src\\\\main\\\\java\\\\org\\\\springframework\\\\samples\\\\petclinic\\\\owner"
+1774160682875:Let me read the source files for the Owner class and its dependencies:
+1774160682898:2026-03-22T11:51:55.083+05:30  WARN 15216 --- [java-test-case-generate-agent] [           main] o.s.a.m.tool.DefaultToolCallingManager   : LLM may have adapted the tool name 'Glob', especially if the name was truncated due to length limits. If this is the case, you can customize the prefixing and processing logic using McpToolNamePrefixGenerator
+1774160688692:generate test package -p "E:\\\\spring-petclinic\\\\src\\\\main\\\\java\\\\org\\\\springframework\\\\samples\\\\petclinic\\\\owner"
+1774246591315:generate test -f "E:\\\\spring-petclinic\\\\src\\\\main\\\\java\\\\org\\\\springframework\\\\samples\\\\petclinic\\\\owner\\\\OwnerController.java"
+1774415908503:generate test -f "E:\\\\spring-petclinic\\\\src\\\\main\\\\java\\\\org\\\\springframework\\\\samples\\\\petclinic\\\\owner\\\\OwnerController.java"help
+1774416111499:generate test -f "E:\\\\spring-petclinic\\\\src\\\\main\\\\java\\\\org\\\\springframework\\\\samples\\\\petclinic\\\\owner\\\\Owner.java"
+1774416968834:generate test -f "E:\\\\spring-petclinic\\\\src\\\\main\\\\java\\\\org\\\\springframework\\\\samples\\\\petclinic\\\\owner\\\\OwnerController.java"

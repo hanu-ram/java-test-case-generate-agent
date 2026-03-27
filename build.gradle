@@ -33,6 +33,7 @@ ext {
 }
 
 dependencies {
+    implementation 'io.github.vishalmysore:agenticmemory:0.0.9'
     implementation('org.springframework.boot:spring-boot-starter-webflux')
 //    implementation 'org.springframework.ai:spring-ai-starter-model-google-genai'
     implementation("com.github.javaparser:javaparser-core:3.28.0")
@@ -49,7 +50,7 @@ dependencies {
     implementation 'org.springframework.shell:spring-shell-starter-jansi'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.ai:spring-ai-starter-vector-store-pinecone'
-    implementation 'org.springframework.ai:spring-ai-tika-document-reader'
+    implementation 'org.springframework.ai:spring-ai-markdown-document-reader'
 //    implementation 'org.springframework.ai:spring-ai-starter-model-vertex-ai-gemini'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'

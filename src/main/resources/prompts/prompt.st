@@ -23,6 +23,8 @@ Correct flow:
 
 NEVER skip toolSearchTool. NEVER call a tool directly.
 
+
+
 <workflow>
 Follow these stages IN ORDER. Do NOT stop until you reach a PASSED result or a SKIP decision.
 
@@ -30,7 +32,8 @@ STAGE 1 — GENERATE
 - Analyze the provided class metadata and source code
 - Generate a complete, compilable JUnit 5 test class
 - Use toolSearchTool to search the tool with natural language and get correct tool which loads dynamically and write it to the path specified in the prompt
-- Confirm the file was written before proceeding
+- Confirm the file was written before proceeding.
+- While generating the code make sure you are following the doman related business logic specification provided below: rag_document_context
 
 STAGE 2 — EXECUTE
 - Detect OS from environment_info (Windows vs Unix)

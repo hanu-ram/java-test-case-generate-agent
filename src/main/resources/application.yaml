@@ -28,10 +28,11 @@ spring:
         api-key: pcsk_4x6gPG_3uMiBWpeT2CXy1sHRnh5TLxTuC355EkrH2T6jNpWiiQh1FjURdy2vBSfMPTyArA
         index-name: spring-ai-index
         namespace: testagent
+        content-field-name: document_content
     openai:
       chat:
         options:
-          model: minimaxai/minimax-m2.5
+          model: qwen/qwen3.5-397b-a17b # minimaxai/minimax-m2.5
 #          reasoning-effort: low only for o1 models
           internal-tool-execution-enabled: true
           parallel-tool-calls: false
@@ -39,6 +40,9 @@ spring:
           temperature: 0.1
       api-key: ${NVIDIA_API_KEY}
       base-url: https://integrate.api.nvidia.com
+      embedding:
+        options:
+          model: baai/bge-m3
     retry:
       max-attempts: 3
       backoff:
@@ -75,3 +79,5 @@ management:
 #    root: info
 server:
   port: 8081
+organization:
+  ingest-data: true

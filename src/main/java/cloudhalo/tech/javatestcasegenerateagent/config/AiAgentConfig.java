@@ -12,6 +12,7 @@ import org.springframework.ai.rag.advisor.RetrievalAugmentationAdvisor;
 import org.springframework.ai.rag.preretrieval.query.transformation.TranslationQueryTransformer;
 import org.springframework.ai.rag.retrieval.search.VectorStoreDocumentRetriever;
 import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.ai.vectorstore.filter.Filter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
@@ -51,7 +52,11 @@ public class AiAgentConfig {
         VectorStoreDocumentRetriever vectorRetriever = VectorStoreDocumentRetriever.builder()
                 .vectorStore(vectorStore)
                 .topK(3)
-                .similarityThreshold(0.5)
+                .filterExpression(() -> new Filter.Expression(
+                        Filter.ExpressionType.EQ,
+                        new Filter.Key("source"),
+                        new Filter.Value("organization_rules.md")
+                ))
                 .build();
         return RetrievalAugmentationAdvisor.builder()
 //                .queryTransformers(TranslationQueryTransformer.builder().chatClientBuilder(ChatClient.builder(openAiChatModel)).targetLanguage("English").build())

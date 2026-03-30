@@ -186,3 +186,14 @@
 1774415908503:generate test -f "E:\\\\spring-petclinic\\\\src\\\\main\\\\java\\\\org\\\\springframework\\\\samples\\\\petclinic\\\\owner\\\\OwnerController.java"help
 1774416111499:generate test -f "E:\\\\spring-petclinic\\\\src\\\\main\\\\java\\\\org\\\\springframework\\\\samples\\\\petclinic\\\\owner\\\\Owner.java"
 1774416968834:generate test -f "E:\\\\spring-petclinic\\\\src\\\\main\\\\java\\\\org\\\\springframework\\\\samples\\\\petclinic\\\\owner\\\\OwnerController.java"
+1774601524766:x "Generate the junit test cases for the following class: E:\\\\spring-petclinic\\\\src\\\\main\\\\java\\\\org\\\\springframework\\\\samples\\\\petclinic\\\\owner\\\\OwnerController.java"
+1774601542589:generate test package -p "E:\\\\spring-petclinic\\\\src\\\\main\\\\java\\\\org\\\\springframework\\\\samples\\\\petclinic\\\\owner"
+1774601565641:generate test -f "E:\\\\spring-petclinic\\\\src\\\\main\\\\java\\\\org\\\\springframework\\\\samples\\\\petclinic\\\\owner\\\\OwnerController.java"
+1774851193289:[
+1774851205145:]generate test -f "E:\\\\spring-petclinic\\\\src\\\\main\\\\java\\\\org\\\\springframework\\\\samples\\\\petclinic\\\\owner\\\\OwnerController.java"
+1774851210636:generate test -f "E:\\\\spring-petclinic\\\\src\\\\main\\\\java\\\\org\\\\springframework\\\\samples\\\\petclinic\\\\owner\\\\OwnerController.java"
+1774852709804:<dependency>
+1774852716095:</dependency>generate test -f "E:\\\\spring-petclinic\\\\src\\\\main\\\\java\\\\org\\\\springframework\\\\samples\\\\petclinic\\\\owner\\\\OwnerController.java"
+1774852718384:generate test -f "E:\\\\spring-petclinic\\\\src\\\\main\\\\java\\\\org\\\\springframework\\\\samples\\\\petclinic\\\\owner\\\\OwnerController.java"
+1774865392134:Fetch owner‑domain specific rules for generating JUnit 5 tests for the `OwnerController` class in the Spring Petclinic `org.springframework.samples.petclinic.owner` package.
+1774865411667:generate test -f "E:\\\\spring-petclinic\\\\src\\\\main\\\\java\\\\org\\\\springframework\\\\samples\\\\petclinic\\\\owner\\\\OwnerController.java"

@@ -25,7 +25,7 @@ spring:
   ai:
     vectorstore:
       pinecone:
-        api-key: pcsk_4x6gPG_3uMiBWpeT2CXy1sHRnh5TLxTuC355EkrH2T6jNpWiiQh1FjURdy2vBSfMPTyArA
+        api-key: pcsk_6mNTbp_44mjJcUYDZbKLKgyY2LvWE4e7eiiAhdFhXVd8chE5VTtCTfTG9sHuKUjtCBrfNt
         index-name: spring-ai-index
         namespace: testagent
         content-field-name: document_content
@@ -34,7 +34,7 @@ spring:
         options:
           model: qwen/qwen3.5-397b-a17b # minimaxai/minimax-m2.5
 #          reasoning-effort: low only for o1 models
-          internal-tool-execution-enabled: true
+          internal-tool-execution-enabled: false
           parallel-tool-calls: false
           verbosity: medium
           temperature: 0.1
@@ -42,7 +42,8 @@ spring:
       base-url: https://integrate.api.nvidia.com
       embedding:
         options:
-          model: baai/bge-m3
+          model: nvidia/nv-embed-v1
+          encoding-format: float
     retry:
       max-attempts: 3
       backoff:
@@ -80,4 +81,16 @@ management:
 server:
   port: 8081
 organization:
-  ingest-data: true
+  ingest-data: false
+app:
+  rag:
+    reranker:
+      enabled: true
+      api-key: ${NVIDIA_API_KEY}
+      base-url: https://ai.api.nvidia.com
+      path: /v1/retrieval/nvidia/llama-nemotron-rerank-1b-v2/reranking
+      model: nvidia/llama-nemotron-rerank-1b-v2
+      candidate-count: 8
+      top-k: 1
+      timeout: 20s
+      fail-open: true

@@ -24,7 +24,8 @@
     - Tests must cover both successful flows and edge/error cases.
 
 ## Owner Domain specific rules:
-- Telephone numbers in the tests format must be (+CountryCode) XXXXXXXXXX. The country code in parentheses, a space, then the local number. Digits only in the local part, 10 to 12 digits accepted. No dashes, no dots between digits. Examples: (+91) 6085551023
-- Visit descriptions in tests must be a realistic clinical note — at least 5 words, sentence case. Examples: "Annual check-up and vaccination," "Follow-up after dental procedure."
+Owner domain-specific rules are as follows:
+- Telephone numbers in the tests format must be (+CountryCode) XXXXXXXXXX. The country code in parentheses, a space, then the local number. Digits only in the local part, 10 to 12 digits accepted. No dashes, no dots between digits. Examples: (+91) 6085551023.
+- Visit descriptions in tests must be a realistic clinical note — at least 5 words, sentence case. Examples: "Annual check-up and vaccination," "Follow-up after dental procedure.".
 - Every address used in a test must follow the structure: {door number}, {street name}, {locality}, {city} - {pincode}. The pincode must be a valid. Example: "14, Rajiv Gandhi Salai, Perungudi, Chennai - 600096". Addresses like "123 Main St" or "Test Address" are not valid — they don't map to any real locality and cannot be used to verify address.
 - While returning the owner object, make sure the telephone or phone number is masked. Example: 984908XXXX

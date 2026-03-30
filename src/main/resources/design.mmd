@@ -1,0 +1,120 @@
+flowchart TD
+    %% ── CLIENTS ──
+    EA["🏢 Enterprise App"]
+
+    %% ── PHASE 1: GATEWAY ──
+    subgraph P1["PHASE 1 · Gateway + Semantic Cache"]
+        GW["⚡ Spring Boot API Gateway\nPOST /api/llm/chat"]
+        SC["🔍 Semantic Cache\nRedis + Embeddings\nCosine Similarity > 0.92"]
+        LOG["🗃️ PostgreSQL Logger\nPrompt · Response · Cost · Latency"]
+        EMB["🔢 Embedding API\nOpenAI / Anthropic\nfloat[1536]"]
+    end
+
+    %% ── PHASE 2: AGENTIC RAG ──
+    subgraph P2["PHASE 2 · Agentic RAG + Vector Store"]
+        AG["🤖 RAG Agent\nClaude Haiku\nDecides which sources to search"]
+        VS["🗄️ pgvector Store\nDocument Embeddings\nIVFFlat Index"]
+        VAL["✅ Chunk Validator\nRelevance Score Check\nThreshold: 0.80"]
+        RETRY["🔄 1 Retry\nReformulate Query\nif score < 0.80"]
+        INJECT["💉 Context Injector\nEnrich Prompt\nwith validated chunks"]
+        HCHECK["🛡️ Hallucination Check\nAnswer grounded\nin retrieved docs?"]
+
+        subgraph SOURCES["Knowledge Collections"]
+            S1["📁 HR Docs"]
+            S2["📁 Product Catalog"]
+            S3["📁 Support Tickets"]
+            S4["📁 Past Interactions"]
+        end
+    end
+
+    %% ── LLM ROUTER ──
+    subgraph ROUTER["PHASE 4 · Smart LLM Router"]
+        RT["🔀 LLM Router\nClassify Task Type"]
+        LLM1["Claude Haiku\nSimple QA"]
+        LLM2["GPT-4o\nCoding"]
+        LLM3["Claude Opus\nReasoning"]
+        LLM4["Ollama Local\nSensitive Data"]
+    end
+
+    %% ── PHASE 3: LEARNING ──
+    subgraph P3["PHASE 3 · Learning System"]
+        direction TB
+        subgraph SIGNALS["Signal Collection"]
+            SIG1["👍👎 Level 1\nExplicit Feedback\nHTTP POST /api/feedback"]
+            SIG2["👀 Level 2\nImplicit Signals\nRephrase · Copy · Follow-up"]
+            SIG3["📊 Level 3\nBusiness Outcomes\nTickets · Accepts · Churn\nPhase 4"]
+        end
+
+        KAFKA["📨 Kafka\nFeedbackEvent Topic\nGateway → Learning Service"]
+
+        subgraph BATCH["Nightly Batch · 2am · Spring Batch"]
+            B1["🗺️ Update RAG\nRouting Weights\n✅ AUTO"]
+            B2["✍️ Update Prompt\nTemplates per Category\n✅ AUTO"]
+            B3["🚫 Update Bad\nAnswer Blacklist\n✅ AUTO"]
+            B4["📚 Knowledge Base\nGap Detection + Draft\n🔐 HUMAN REVIEW"]
+        end
+
+        ADMIN["👤 Admin Review Queue\nClean Draft Answer\nConfidence Score\nApprove → Ingest"]
+    end
+
+    %% ── MONITORING ──
+    subgraph MON["Monitoring · Micrometer + Grafana"]
+        MET["📈 Grafana Dashboard\nQuality Score · Cost Savings\nCache Hit Rate · Routing Accuracy"]
+    end
+
+    %% ── INGESTION ──
+    INGEST["📥 Document Ingestion\nApache Tika\nAny file format → chunks"]
+
+    %% ── FLOWS ──
+
+    EA -->|"Every LLM request"| GW
+    GW --> SC
+    SC -->|"Cache HIT → instant response"| EA
+    SC -->|"Cache MISS"| AG
+    GW --> LOG
+    GW --> EMB
+    EMB --> SC
+
+    AG -->|"Decides: HR + Employment"| SOURCES
+    S1 & S2 & S3 & S4 --> VS
+    VS -->|"Top 5 chunks + scores"| VAL
+    VAL -->|"score ≥ 0.80 ✅"| INJECT
+    VAL -->|"score < 0.80 ❌"| RETRY
+    RETRY -->|"Reformulated query"| VS
+    RETRY -->|"Still poor after 1 retry\nFallback: no context"| INJECT
+    INJECT --> ROUTER
+    RT --> LLM1 & LLM2 & LLM3 & LLM4
+    LLM1 & LLM2 & LLM3 & LLM4 -->|"Raw response"| HCHECK
+    HCHECK -->|"Grounded ✅ → cache + return"| SC
+    HCHECK -->|"Hallucination ⚠️ → flag"| LOG
+
+    INGEST -->|"Chunks + embeddings"| VS
+
+    SIG1 -->|"HTTP POST"| KAFKA
+    SIG2 --> KAFKA
+    SIG3 --> KAFKA
+
+    KAFKA --> B1 & B2 & B3 & B4
+    B4 -->|"Draft answer + confidence score"| ADMIN
+    ADMIN -->|"Approved → ingest"| INGEST
+
+    LOG --> MET
+    B1 & B2 & B3 --> MET
+
+    %% ── STYLES ──
+    classDef phase1 fill:#0c2d48,stroke:#38bdf8,color:#e0f2fe
+    classDef phase2 fill:#1e1040,stroke:#a78bfa,color:#ede9fe
+    classDef phase3 fill:#0f2a1f,stroke:#34d399,color:#d1fae5
+    classDef phase4 fill:#2a1500,stroke:#fb923c,color:#ffedd5
+    classDef llm fill:#1a1a1a,stroke:#6b7280,color:#f3f4f6
+    classDef signal fill:#1a1a2e,stroke:#6b7280,color:#e2e8f0
+    classDef auto fill:#064e3b,stroke:#34d399,color:#d1fae5
+    classDef human fill:#78350f,stroke:#fb923c,color:#ffedd5
+
+    class GW,SC,LOG,EMB phase1
+    class AG,VS,VAL,RETRY,INJECT,HCHECK,S1,S2,S3,S4 phase2
+    class SIGNALS,KAFKA,BATCH,ADMIN,SIG1,SIG2,SIG3 phase3
+    class RT,ROUTER phase4
+    class LLM1,LLM2,LLM3,LLM4 llm
+    class B1,B2,B3 auto
+    class B4 human

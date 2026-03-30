@@ -50,28 +50,12 @@ public class TestGenAgent {
         this.promptBuilder = promptBuilder;
         this.agentModel = agentModel;
         this.retrievalAugmentationAdvisor = retrievalAugmentationAdvisor;
-/*
-        SearchRequest searchRequest = SearchRequest.builder()
-                .query("Add Organization information on the creation of a each test class")
-                .topK(1)
-                .filterExpression("source == 'organization_rules.md'")
-                .similarityThreshold(0.4)
-                .build();
-        List<Document> similarDocs = vectorStore.similaritySearch(searchRequest);
-
-        var orgContext = similarDocs.stream()
-                .map(doc -> doc.getFormattedContent(MetadataMode.NONE))
-                .collect(Collectors.joining(System.lineSeparator()));*/
-
-//        System.out.println(cyan("Organization context: ") + orgContext);
-//        System.out.println(yellow("Adding to system prompt"));
 
         this.chatClient = chatClientBuilder
                 .defaultSystem(p -> p.text(systemPrompt)
                         .param(AgentEnvironment.ENVIRONMENT_INFO_KEY, AgentEnvironment.info())
                         .param(AgentEnvironment.AGENT_MODEL_KEY, agentModel)
                         .param(AgentEnvironment.AGENT_MODEL_KNOWLEDGE_CUTOFF_KEY, knowledgeCutoff)
-//                        .param("org_context", orgContext)
                 )
                 .defaultTools(
                         FileSystemTools.builder().build(),
@@ -84,6 +68,7 @@ public class TestGenAgent {
                                 .build()
                 )
                 .defaultAdvisors(
+                        retrievalAugmentationAdvisor,
                         ToolSearchToolCallAdvisor.builder()
                                 .conversationHistoryEnabled(false)
                                 .toolSearcher(toolSearcher)
@@ -93,8 +78,7 @@ public class TestGenAgent {
                                 .showUserText(true)
                                 .showAssistantText(true)
                                 .showAvailableTools(true)
-                                .build(),
-                        retrievalAugmentationAdvisor
+                                .build()
                 )
                 .build();
     }

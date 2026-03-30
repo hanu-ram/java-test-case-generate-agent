@@ -27,6 +27,7 @@ NEVER skip toolSearchTool. NEVER call a tool directly.
 
 <workflow>
 Follow these stages IN ORDER. Do NOT stop until you reach a PASSED result or a SKIP decision.
+Before writing tests analyze the provided context information in above block based on that apply the specific logic in the test even its doesn't implemented in the actual code.
 
 STAGE 1 — GENERATE
 - Analyze the provided class metadata and source code

@@ -38,9 +38,7 @@ public class OrganizationRulesLoader {
 
             MarkdownDocumentReader markdownDocumentReader = new MarkdownDocumentReader(rulesResource, markdownDocumentReaderConfig);
             var documents = markdownDocumentReader.get();
-            TextSplitter textSplitter = new TokenTextSplitter();
-            List<Document> splitDocs = textSplitter.split(documents);
-            vectorStore.add(splitDocs);
+            vectorStore.add(documents);
         }
     }
 

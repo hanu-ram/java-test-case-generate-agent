@@ -16,8 +16,7 @@ public class RagTool {
 
     @Tool(
             name = "organizationRulesRetriever",
-            description = "Retrieve organization-specific business rules and domain constraints from the vector knowledge base before generating or repairing tests.",
-            returnDirect = true
+            description = "Retrieve organization-specific business rules and domain constraints from the vector knowledge base before generating or repairing tests."
     )
     public String organizationContextLoader(String query) {
         return chatClientBuilder.clone().build().prompt()

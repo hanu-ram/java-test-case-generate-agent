@@ -2,31 +2,23 @@ package cloudhalo.tech.javatestcasegenerateagent.agent;
 
 import cloudhalo.tech.javatestcasegenerateagent.advisor.MyLoggingAdvisor;
 import cloudhalo.tech.javatestcasegenerateagent.analyzer.CodeMetadata;
-import cloudhalo.tech.javatestcasegenerateagent.ingest.OrganizationRulesLoader;
 import cloudhalo.tech.javatestcasegenerateagent.prompt.TestGenPromptBuilder;
+import cloudhalo.tech.javatestcasegenerateagent.rag.RagTool;
 import org.springaicommunity.agent.tools.*;
 import org.springaicommunity.agent.utils.AgentEnvironment;
 import org.springaicommunity.agent.utils.CommandLineQuestionHandler;
 import org.springaicommunity.tool.search.ToolSearchToolCallAdvisor;
 import org.springaicommunity.tool.search.ToolSearcher;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.prompt.PromptTemplate;
-import org.springframework.ai.document.Document;
-import org.springframework.ai.document.MetadataMode;
 import org.springframework.ai.rag.advisor.RetrievalAugmentationAdvisor;
-import org.springframework.ai.vectorstore.SearchRequest;
-import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.Path;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 @DependsOn("organizationRulesLoader")
@@ -35,7 +27,6 @@ public class TestGenAgent {
     private final ChatClient chatClient;
     private final TestGenPromptBuilder promptBuilder;
     private final String agentModel;
-    private final RetrievalAugmentationAdvisor retrievalAugmentationAdvisor;
 
     public TestGenAgent(
             ChatClient.Builder chatClientBuilder,
@@ -44,12 +35,10 @@ public class TestGenAgent {
             @Value("${spring.ai.openai.chat.options.model}") String agentModel,
             @Value("${agent.model.knowledge.cutoff:2025-01-01}") String knowledgeCutoff,
             @Value("classpath:/prompts/prompt.st") Resource systemPrompt,
-            VectorStore vectorStore,
             RetrievalAugmentationAdvisor retrievalAugmentationAdvisor
     ) {
         this.promptBuilder = promptBuilder;
         this.agentModel = agentModel;
-        this.retrievalAugmentationAdvisor = retrievalAugmentationAdvisor;
 
         this.chatClient = chatClientBuilder
                 .defaultSystem(p -> p.text(systemPrompt)
@@ -62,13 +51,17 @@ public class TestGenAgent {
                         GrepTool.builder().build(),
                         GlobTool.builder().build(),
                         ShellTools.builder().build(),
+                        RagTool.builder()
+                                .chatClientBuilder(chatClientBuilder.clone())
+                                .retrievalAugmentationAdvisor(retrievalAugmentationAdvisor)
+                                .build(),
                         AskUserQuestionTool.builder()
                                 .questionHandler(new CommandLineQuestionHandler())
                                 .answersValidation(false)
                                 .build()
                 )
                 .defaultAdvisors(
-                        retrievalAugmentationAdvisor,
+//                        retrievalAugmentationAdvisor,
                         ToolSearchToolCallAdvisor.builder()
                                 .conversationHistoryEnabled(false)
                                 .toolSearcher(toolSearcher)

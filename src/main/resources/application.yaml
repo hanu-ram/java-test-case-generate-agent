@@ -32,11 +32,11 @@ spring:
     openai:
       chat:
         options:
-          model: qwen/qwen3.5-397b-a17b # minimaxai/minimax-m2.5
+          model: qwen/qwen3.5-122b-a10b #qwen/qwen3.5-397b-a17b # minimaxai/minimax-m2.5
 #          reasoning-effort: low only for o1 models
           internal-tool-execution-enabled: false
           parallel-tool-calls: false
-          verbosity: medium
+#          verbosity: medium
           temperature: 0.1
       api-key: ${NVIDIA_API_KEY}
       base-url: https://integrate.api.nvidia.com

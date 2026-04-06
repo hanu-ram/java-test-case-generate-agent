@@ -33,7 +33,6 @@ ext {
 }
 
 dependencies {
-    implementation 'io.github.vishalmysore:agenticmemory:0.0.9'
     implementation('org.springframework.boot:spring-boot-starter-webflux')
 //    implementation 'org.springframework.ai:spring-ai-starter-model-google-genai'
     implementation("com.github.javaparser:javaparser-core:3.28.0")

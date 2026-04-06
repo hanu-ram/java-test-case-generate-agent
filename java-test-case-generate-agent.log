@@ -197,3 +197,10 @@
 1774852718384:generate test -f "E:\\\\spring-petclinic\\\\src\\\\main\\\\java\\\\org\\\\springframework\\\\samples\\\\petclinic\\\\owner\\\\OwnerController.java"
 1774865392134:Fetch owner‑domain specific rules for generating JUnit 5 tests for the `OwnerController` class in the Spring Petclinic `org.springframework.samples.petclinic.owner` package.
 1774865411667:generate test -f "E:\\\\spring-petclinic\\\\src\\\\main\\\\java\\\\org\\\\springframework\\\\samples\\\\petclinic\\\\owner\\\\OwnerController.java"
+1774872963376:You are TestGenAI, an elite Java QA Architect...
+1774872969539:d
+1774872976206:generate test -f "E:\\\\spring-petclinic\\\\src\\\\main\\\\java\\\\org\\\\springframework\\\\samples\\\\petclinic\\\\owner\\\\OwnerController.java"
+1774970994568:shell:>generate test -f "E:\\\\spring-petclinic\\\\src\\\\main\\\\java\\\\org\\\\springframework\\\\samples\\\\petclinic\\\\owner\\\\OwnerController.java"generate test -f "E:\\\\spring-petclinic\\\\src\\\\main\\\\java\\\\org\\\\springframework\\\\samples\\\\petclinic\\\\owner\\\\OwnerController.java"
+1774971003088:generate test -f "E:\\\\spring-petclinic\\\\src\\\\main\\\\java\\\\org\\\\springframework\\\\samples\\\\petclinic\\\\owner\\\\OwnerController.java"
+1775025768628:qwen/qwen3.5-397b-a17b
+1775025777951:generate test -f "E:\\\\spring-petclinic\\\\src\\\\main\\\\java\\\\org\\\\springframework\\\\samples\\\\petclinic\\\\owner\\\\OwnerController.java"

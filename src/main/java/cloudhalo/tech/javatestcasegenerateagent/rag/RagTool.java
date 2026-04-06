@@ -1,9 +1,13 @@
 package cloudhalo.tech.javatestcasegenerateagent.rag;
 
+import cloudhalo.tech.javatestcasegenerateagent.advisor.MyLoggingAdvisor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.rag.advisor.RetrievalAugmentationAdvisor;
 import org.springframework.ai.tool.annotation.Tool;
 
+@Slf4j
 public class RagTool {
 
     private final RetrievalAugmentationAdvisor retrievalAugmentationAdvisor;
@@ -19,11 +23,19 @@ public class RagTool {
             description = "Retrieve organization-specific business rules and domain constraints from the vector knowledge base before generating or repairing tests."
     )
     public String organizationContextLoader(String query) {
-        return chatClientBuilder.clone().build().prompt()
-                .advisors(retrievalAugmentationAdvisor)
+        String content = chatClientBuilder.build().prompt()
+                .system("""
+                        You are a helpful assistant that retrieves organization-specific business rules and domain constraints from the vector knowledge base.
+                        And give AS IS. So that the user can use it directly. Do not add any imaginative rules by yourself or based on user query.
+                        Format the context retrieved from vector database as a markdown so, that LLM can understand it even better.
+                        At end add a line saying, The above are the organization-specific business rules and domain constraints you should adhere.
+                        """)
+                .advisors(retrievalAugmentationAdvisor, MyLoggingAdvisor.builder().build())
                 .user(query)
                 .call()
                 .content();
+        log.info("Retrieved content: {}", content);
+        return content;
     }
 
     public static Builder builder() {

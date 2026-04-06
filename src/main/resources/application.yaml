@@ -32,7 +32,7 @@ spring:
     openai:
       chat:
         options:
-          model: qwen/qwen3.5-122b-a10b #qwen/qwen3.5-397b-a17b # minimaxai/minimax-m2.5
+          model: google/gemma-4-31b-it #qwen/qwen3.5-397b-a17b # minimaxai/minimax-m2.5
 #          reasoning-effort: low only for o1 models
           internal-tool-execution-enabled: false
           parallel-tool-calls: false
@@ -47,7 +47,9 @@ spring:
     retry:
       max-attempts: 3
       backoff:
-        max-interval: 10s
+        max-interval: 12s
+        initial-interval: 4000ms
+        multiplier: 2
 management:
   endpoints:
     web:

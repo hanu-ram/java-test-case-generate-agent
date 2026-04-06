@@ -4,13 +4,17 @@ import cloudhalo.tech.javatestcasegenerateagent.advisor.MyLoggingAdvisor;
 import cloudhalo.tech.javatestcasegenerateagent.analyzer.CodeMetadata;
 import cloudhalo.tech.javatestcasegenerateagent.prompt.TestGenPromptBuilder;
 import cloudhalo.tech.javatestcasegenerateagent.rag.RagTool;
-import org.springaicommunity.agent.tools.*;
+import org.springaicommunity.agent.tools.FileSystemTools;
+import org.springaicommunity.agent.tools.GlobTool;
+import org.springaicommunity.agent.tools.GrepTool;
+import org.springaicommunity.agent.tools.ShellTools;
 import org.springaicommunity.agent.utils.AgentEnvironment;
-import org.springaicommunity.agent.utils.CommandLineQuestionHandler;
 import org.springaicommunity.tool.search.ToolSearchToolCallAdvisor;
 import org.springaicommunity.tool.search.ToolSearcher;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.rag.advisor.RetrievalAugmentationAdvisor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.core.io.Resource;
@@ -30,6 +34,7 @@ public class TestGenAgent {
 
     public TestGenAgent(
             ChatClient.Builder chatClientBuilder,
+            @Qualifier("chatClientBuilder") ChatClient.Builder chatClientBuilderRag,
             TestGenPromptBuilder promptBuilder,
             ToolSearcher toolSearcher,
             @Value("${spring.ai.openai.chat.options.model}") String agentModel,
@@ -52,16 +57,11 @@ public class TestGenAgent {
                         GlobTool.builder().build(),
                         ShellTools.builder().build(),
                         RagTool.builder()
-                                .chatClientBuilder(chatClientBuilder.clone())
+                                .chatClientBuilder(chatClientBuilderRag.clone())
                                 .retrievalAugmentationAdvisor(retrievalAugmentationAdvisor)
-                                .build(),
-                        AskUserQuestionTool.builder()
-                                .questionHandler(new CommandLineQuestionHandler())
-                                .answersValidation(false)
                                 .build()
                 )
                 .defaultAdvisors(
-//                        retrievalAugmentationAdvisor,
                         ToolSearchToolCallAdvisor.builder()
                                 .conversationHistoryEnabled(false)
                                 .toolSearcher(toolSearcher)
@@ -90,6 +90,7 @@ public class TestGenAgent {
         String userPrompt = promptBuilder.buildUserPrompt(metadata, buildTool, workingDir.toString());
 
         var agentResponse = chatClient.prompt()
+                .options(OpenAiChatOptions.builder().model("gpt-5.4-2026-03-05").temperature(0.2).build())
                 .user(userPrompt)
                 .system(s -> s.params(Map.of(
                         "workingDir", workingDir.toString(),
@@ -98,9 +99,6 @@ public class TestGenAgent {
                         )
                 )
                 .toolContext(Map.of(
-                        // FIX 3: "workingDirectory" is what ShellTools reads as its CWD.
-                        // Without this the shell runs from wherever the JVM started,
-                        // gradlew/mvnw won't be found, and every command silently fails.
                         "workingDirectory", workingDir.toString(),
                         "targetClass", metadata.className(),
                         "testOutputPath", metadata.suggestedTestPath()))

@@ -3,26 +3,37 @@ package cloudhalo.tech.javatestcasegenerateagent.config;
 import cloudhalo.tech.javatestcasegenerateagent.rag.reranker.NvidiaRerankerProperties;
 import cloudhalo.tech.javatestcasegenerateagent.rag.reranker.NvidiaRerankingDocumentPostProcessor;
 import cloudhalo.tech.javatestcasegenerateagent.rag.transformer.ContextSavingRewriteQueryTransformer;
+import io.micrometer.observation.ObservationRegistry;
 import org.springaicommunity.tool.search.ToolSearcher;
 import org.springaicommunity.tool.searcher.LuceneToolSearcher;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.client.advisor.observation.AdvisorObservationConvention;
+import org.springframework.ai.chat.client.observation.ChatClientObservationConvention;
 import org.springframework.ai.chat.memory.ChatMemoryRepository;
 import org.springframework.ai.chat.memory.InMemoryChatMemoryRepository;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
+import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.prompt.PromptTemplate;
+import org.springframework.ai.model.chat.client.autoconfigure.ChatClientBuilderConfigurer;
+import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
+import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.ai.rag.advisor.RetrievalAugmentationAdvisor;
+import org.springframework.ai.rag.generation.augmentation.ContextualQueryAugmenter;
 import org.springframework.ai.rag.postretrieval.document.DocumentPostProcessor;
 import org.springframework.ai.rag.preretrieval.query.transformation.RewriteQueryTransformer;
 import org.springframework.ai.rag.retrieval.search.VectorStoreDocumentRetriever;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.ai.vectorstore.filter.FilterExpressionBuilder;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Scope;
 import org.springframework.core.Ordered;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -54,6 +65,30 @@ public class AiAgentConfig {
                 .build();
     }
 
+    @Bean("chatgptChatClientBuilder")
+    public ChatClient.Builder chatClientBuilderGpt(OpenAiChatModel openAiChatModel, OpenAiApi openAiApi) {
+        var openAiChatModelMutate = openAiChatModel.mutate()
+                .openAiApi(openAiApi.mutate().baseUrl("https://api.openai.com").apiKey(System.getenv("OPENAI_API_KEY")).build()).build();
+//                .openAiApi(openAiApi.mutate().apiKey("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").build()).build();
+
+        return ChatClient.builder(openAiChatModelMutate);
+    }
+
+    @Bean
+    @Scope("prototype")
+    ChatClient.Builder chatClientBuilder(ChatClientBuilderConfigurer chatClientBuilderConfigurer, ChatModel chatModel,
+                                         ObjectProvider<ObservationRegistry> observationRegistry,
+                                         ObjectProvider<ChatClientObservationConvention> chatClientObservationConvention,
+                                         ObjectProvider<AdvisorObservationConvention> advisorObservationConvention) {
+        ChatClient.Builder builder = ChatClient.builder(chatModel,
+                observationRegistry.getIfUnique(() -> ObservationRegistry.NOOP),
+                chatClientObservationConvention.getIfUnique(() -> null),
+                advisorObservationConvention.getIfUnique(() -> null));
+        return chatClientBuilderConfigurer.configure(builder);
+    }
+
+
+
     @Bean
     public ChatMemoryRepository chatMemoryRepository() {
         return new InMemoryChatMemoryRepository();
@@ -68,9 +103,9 @@ public class AiAgentConfig {
 
     @Bean
     public RetrievalAugmentationAdvisor retrievalAugmentationAdvisor(VectorStore vectorStore,
-                                                                    ChatClient.Builder chatClientBuilder,
-                                                                    NvidiaRerankerProperties rerankerProperties,
-                                                                    ObjectProvider<DocumentPostProcessor> documentPostProcessors) {
+                                                                     ChatClient.Builder chatClientBuilder,
+                                                                     NvidiaRerankerProperties rerankerProperties,
+                                                                     ObjectProvider<DocumentPostProcessor> documentPostProcessors) {
         FilterExpressionBuilder b = new FilterExpressionBuilder();
         VectorStoreDocumentRetriever vectorRetriever = VectorStoreDocumentRetriever.builder()
                 .vectorStore(vectorStore)
@@ -78,11 +113,11 @@ public class AiAgentConfig {
                 .similarityThreshold(0.3)
                 .topK(3)
                 .filterExpression(b.eq("source", "organization_rules.md").build())
-              /*  .filterExpression(() -> new Filter.Expression(
-                        Filter.ExpressionType.EQ,
-                        new Filter.Key("source"),
-                        new Filter.Value("organization_rules.md")
-                ))*/
+                /*  .filterExpression(() -> new Filter.Expression(
+                          Filter.ExpressionType.EQ,
+                          new Filter.Key("source"),
+                          new Filter.Value("organization_rules.md")
+                  ))*/
                 .build();
         var queryTransformer = RewriteQueryTransformer.builder()
                 .chatClientBuilder(chatClientBuilder.defaultOptions(OpenAiChatOptions.builder().model("openai/gpt-oss-120b").temperature(0.4).build()))
@@ -125,6 +160,16 @@ public class AiAgentConfig {
         return RetrievalAugmentationAdvisor.builder()
                 .queryTransformers(new ContextSavingRewriteQueryTransformer(queryTransformer))
                 .documentRetriever(vectorRetriever)
+                .queryAugmenter(ContextualQueryAugmenter.builder().promptTemplate(PromptTemplate.builder().template("""
+                        Context information is below.
+                        
+                        ---------------------
+                        {context}
+                        ---------------------
+                        
+                        User Query: {query}
+                        
+                        """).build()).build())
                 .documentPostProcessors(postProcessors)
                 .build();
     }

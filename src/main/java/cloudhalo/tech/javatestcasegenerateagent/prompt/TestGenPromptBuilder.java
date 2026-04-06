@@ -40,23 +40,20 @@ public class TestGenPromptBuilder {
      * @param workingDir project root (for run command context)
      */
     public String buildUserPrompt(CodeMetadata metadata, String buildTool, String workingDir) {
-        String runCommand = buildRunCommand(metadata, buildTool, workingDir);
-
         return """
                 ## TASK: Generate JUnit 5 Unit Tests
                 
                 ### Target Class Analysis
-                ```
-                Class     : %s
-                Package   : %s
-                Type      : %s
-                Test Slice: %s
-                Test Class: %s
-                Test Path : %s
-                Build Tool: %s
-                ```
+                - Class: %s
+                - Package: %s
+                - Type: %s
+                - Test Slice: %s
+                - Test Class: %s
+                - Test Path: %s
+                - Build Tool: %s
+                - Source File: %s
                 
-                ### Class Annotations (Spring Context)
+                ### Class Context
                 %s
                 
                 %s
@@ -70,65 +67,12 @@ public class TestGenPromptBuilder {
                 ### Identified Test Scenarios
                 %s
                 
-                ### Source Code (for implementation reference)
-                ```java
-                %s
-                ```
-                
-                ---
-                
-                ## YOUR STEPS — Follow in exact order
-                
-                ### Step 1 — Read dependencies (if needed)
-                If any method parameter or return type is unfamiliar, use FileSystemTools
-                to read the source files for those types before generating tests.
-                Use GlobTool to find them: search for `**/%s*.java`, `**/dto/**`, `**/model/**`.
-                
-                ### Step 2 — Generate the test class
-                Write a complete, compilable JUnit 5 test class for `%s`.
-                
-                Requirements:
-                - Package declaration : `package %s;`
-                - Class name          : `%s`
-                - Cover ALL scenarios listed in "Identified Test Scenarios" above
-                - Use AssertJ for ALL assertions (never bare JUnit assertEquals)
-                - Use @ExtendWith(MockitoExtension.class) with @Mock / @InjectMocks
-                - Follow BDD naming   : should_[result]_when_[condition]()
-                - Include ALL necessary imports
-                
-                ### Step 3 — Write the test file to disk
-                Use FileSystemTools to write the complete test class to:
-                `%s`
-                Create parent directories if they don't exist.
-                
-                ### Step 4 — Compile and run the test (self-healing loop)
-                Run the test using ShellTools with this exact command:
-                `%s`
-                
-                - If compilation FAILS → read the error, fix the test source, overwrite the file (Step 3), re-run.
-                - If test execution FAILS → read assertion failure, fix the logic, overwrite the file, re-run.
-                There is no attempt limit. Keep repairing until you see BUILD SUCCESSFUL.
-                
-                SHELL OUTPUT RULE: Gradle/Maven produces thousands of lines. Extract ONLY:
-                - Lines starting with 'error:' (compilation failures with file/line numbers)
-                - Lines with 'FAILED', 'expected:', 'but was:', or the exception root cause
-                - Ignore all [INFO], [DEBUG], Downloading lines entirely
-                
-                REPAIR LOOP - repeat until BUILD SUCCESSFUL:
-                1. Run the command
-                2. Extract only the relevant error lines (ignore noise)
-                3. Identify the EXACT root cause (wrong import? wrong type? wrong mock setup?)
-                4. If unfamiliar type in error: use GlobTool to find it, read with FileSystemTools
-                5. Fix ONLY the broken part - do not regenerate the whole test class
-                6. Overwrite the file using FileSystemTools
-                7. Go back to step 1
-                
-                When the test passes, output ONLY:
-                <r>PASSED</r>
-                <summary>N tests passed</summary>
-                <errors></errors>
+                ### Important
+                - Read the target source file before generating tests.
+                - Read dependency classes if method signatures or failures require more context.
+                - Use the organization-rules retrieval tool when the class, package, or scenarios imply domain-specific behavior.
+                - Keep domain-rule assertions even if the current implementation does not yet satisfy them.
                 """.formatted(
-                // ── Header block ────────────────────────────────────────
                 metadata.className(),
                 metadata.packageName(),
                 metadata.classType(),
@@ -136,37 +80,12 @@ public class TestGenPromptBuilder {
                 metadata.testClassName(),
                 metadata.suggestedTestPath(),
                 buildTool,
+                metadata.absolutePath(),
                 formatAnnotations(metadata.classAnnotations()),
                 formatInterfaces(metadata),
                 formatMethods(metadata.publicMethods()),
                 formatDependencies(metadata.injectedFields()),
-                buildTestScenarios(metadata),
-                metadata.rawSource(),
-                // ── Step 1 ───────────────────────────────────────────────
-                metadata.className(),
-                // ── Step 2 ───────────────────────────────────────────────
-                metadata.className(),
-                metadata.testPackageName(),
-                metadata.testClassName(),
-                // ── Step 3 ───────────────────────────────────────────────
-                metadata.suggestedTestPath(),
-                // ── Step 4 ───────────────────────────────────────────────
-                runCommand);
-    }
-
-    /**
-     * Build the build-tool-aware single-line run command for the test.
-     * Windows-compatible: uses 'cd /d' and direct executable names.
-     */
-    private String buildRunCommand(CodeMetadata metadata, String buildTool, String workingDir) {
-        String dir = workingDir != null ? workingDir : "<project-root>";
-        String fqcn = metadata.testPackageName() + "." + metadata.testClassName();
-        return switch (buildTool.toLowerCase()) {
-            case "maven" -> "cd /d \"%s\" && mvn test -Dtest=%s --no-transfer-progress".formatted(
-                    dir, metadata.testClassName());
-            default -> // gradle
-                    "cd /d \"%s\" && gradlew test --tests \"%s\" --info".formatted(dir, fqcn);
-        };
+                buildTestScenarios(metadata));
     }
 
     // ─────────────────────────────────────────────────────────────────────────

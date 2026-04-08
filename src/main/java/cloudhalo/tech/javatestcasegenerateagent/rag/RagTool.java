@@ -3,7 +3,6 @@ package cloudhalo.tech.javatestcasegenerateagent.rag;
 import cloudhalo.tech.javatestcasegenerateagent.advisor.MyLoggingAdvisor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.rag.advisor.RetrievalAugmentationAdvisor;
 import org.springframework.ai.tool.annotation.Tool;
 

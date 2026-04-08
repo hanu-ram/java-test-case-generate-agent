@@ -2,6 +2,7 @@
 package cloudhalo.tech.javatestcasegenerateagent.service;
 
 import org.springframework.stereotype.Service;
+
 import java.math.BigDecimal;
 
 @Service

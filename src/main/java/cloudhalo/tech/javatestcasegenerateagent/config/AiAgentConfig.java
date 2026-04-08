@@ -69,7 +69,6 @@ public class AiAgentConfig {
     public ChatClient.Builder chatClientBuilderGpt(OpenAiChatModel openAiChatModel, OpenAiApi openAiApi) {
         var openAiChatModelMutate = openAiChatModel.mutate()
                 .openAiApi(openAiApi.mutate().baseUrl("https://api.openai.com").apiKey(System.getenv("OPENAI_API_KEY")).build()).build();
-//                .openAiApi(openAiApi.mutate().apiKey("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").build()).build();
 
         return ChatClient.builder(openAiChatModelMutate);
     }

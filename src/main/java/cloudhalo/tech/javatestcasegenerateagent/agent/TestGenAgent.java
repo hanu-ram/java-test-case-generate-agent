@@ -33,7 +33,7 @@ public class TestGenAgent {
     private final String agentModel;
 
     public TestGenAgent(
-            ChatClient.Builder chatClientBuilder,
+            @Qualifier("chatgptChatClientBuilder") ChatClient.Builder chatClientBuilder,
             @Qualifier("chatClientBuilder") ChatClient.Builder chatClientBuilderRag,
             TestGenPromptBuilder promptBuilder,
             ToolSearcher toolSearcher,
